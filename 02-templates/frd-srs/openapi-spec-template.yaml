@@ -1,0 +1,203 @@
+openapi: 3.0.3
+info:
+  title: E-Commerce & Payment Checkout API
+  description: >-
+    OpenAPI 3.0 Specification chuẩn cho hệ thống Đặt hàng và Tích hợp Cổng thanh toán (VNPAY / VietQR / MoMo).
+    Thiết kế dành cho Developer, QA Automation và AI Code Generation.
+  version: 1.0.0
+  contact:
+    name: Lead Business Analyst
+    email: ba-team@company.com
+
+servers:
+  - url: https://api.production.example.com/v1
+    description: Production Server
+  - url: https://api.staging.example.com/v1
+    description: Staging / Sandbox Server
+
+paths:
+  /orders/checkout:
+    post:
+      summary: Khởi tạo đơn hàng và thanh toán (Checkout)
+      description: >-
+        Nhận thông tin giỏ hàng, khóa tồn kho tạm thời, tính tổng tiền và trả về Payment URL / Dynamic QR code.
+        Yêu cầu Idempotency Key trong Header để chống trừ tiền trùng lặp.
+      operationId: createOrderCheckout
+      parameters:
+        - name: X-Idempotency-Key
+          in: header
+          required: true
+          description: UUIDv4 duy nhất cho mỗi lượt submit đơn hàng từ Client.
+          schema:
+            type: string
+            format: uuid
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
+      responses:
+        '201':
+          description: Đơn hàng và giao dịch thanh toán được khởi tạo thành công.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '400':
+          description: Payload không hợp lệ hoặc dữ liệu đầu vào sai định dạng.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Xung đột dữ liệu - Hết hàng trong kho hoặc giá sản phẩm đã thay đổi.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /payments/ipn:
+    post:
+      summary: Webhook nhận thông báo thanh toán (Instant Payment Notification)
+      description: >-
+        Endpoint nhận callback bất đồng bộ từ Cổng thanh toán (VNPAY / MoMo / Ngân hàng).
+        Bắt buộc kiểm tra chữ ký số HMAC-SHA512 trước khi xử lý.
+      operationId: handlePaymentIpn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IpnCallbackPayload'
+      responses:
+        '200':
+          description: Xác nhận đã nhận và xử lý IPN thành công.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  RspCode:
+                    type: string
+                    example: "00"
+                  Message:
+                    type: string
+                    example: "Confirm Success"
+
+components:
+  schemas:
+    CheckoutRequest:
+      type: object
+      required:
+        - customer_id
+        - shipping_address_id
+        - payment_method
+        - items
+      properties:
+        customer_id:
+          type: string
+          format: uuid
+          example: "a8098c1a-f86e-11da-bd1a-00112444be1e"
+        shipping_address_id:
+          type: string
+          format: uuid
+          example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        payment_method:
+          type: string
+          enum: [VNPAY_QR, MOMO_WALLET, VIETQR_NAPAS, COD, VISA_MASTER]
+          example: "VNPAY_QR"
+        coupon_code:
+          type: string
+          example: "SALE50K"
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CartItem'
+
+    CartItem:
+      type: object
+      required:
+        - sku
+        - quantity
+        - unit_price
+      properties:
+        sku:
+          type: string
+          example: "IPHONE-15-PRO-256"
+        quantity:
+          type: integer
+          minimum: 1
+          example: 1
+        unit_price:
+          type: number
+          format: double
+          minimum: 0
+          example: 28990000.00
+
+    CheckoutResponse:
+      type: object
+      properties:
+        order_id:
+          type: string
+          format: uuid
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+        order_number:
+          type: string
+          example: "ORD-20260923-001"
+        total_amount:
+          type: number
+          example: 28990000.00
+        currency:
+          type: string
+          example: "VND"
+        payment_status:
+          type: string
+          example: "INITIATED"
+        payment_url:
+          type: string
+          format: uri
+          example: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_Amount=2899000000..."
+        qr_payload:
+          type: string
+          example: "00020101021238540010A00000072701240006970422011009218291..."
+
+    IpnCallbackPayload:
+      type: object
+      required:
+        - order_id
+        - amount
+        - response_code
+        - secure_hash
+      properties:
+        order_id:
+          type: string
+          example: "ORD-20260923-001"
+        amount:
+          type: number
+          example: 28990000.00
+        gateway_txn_id:
+          type: string
+          example: "14589201"
+        response_code:
+          type: string
+          example: "00"
+        secure_hash:
+          type: string
+          example: "8f7b2c9a1d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "ERR_INSUFFICIENT_STOCK"
+        message:
+          type: string
+          example: "Sản phẩm IPHONE-15-PRO-256 hiện đã hết hàng trong kho."
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-09-23T07:30:00Z"
