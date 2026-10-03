@@ -27,7 +27,7 @@ jobs:
 
       - name: Verify OpenAPI 3.0 YAML Syntax
         run: |
-          npx @redocly/cli lint 02-templates/frd-srs/openapi-spec-template.yaml || true
+          npx @redocly/cli lint docs/02-templates/frd-srs/openapi-spec-template.yaml || true
           echo "OpenAPI Spec Verified successfully."
 
       - name: Build Summary
