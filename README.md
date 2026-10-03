@@ -5,31 +5,26 @@
 
 ---
 
-## 🤖 1-Click Skill Installation & AI Agent Usage
+## 🤖 AI Skill Integration & Usage
 
-### 📥 1. One-Click Install for Claude Code CLI
-Run in any terminal to install the skill globally into your `~/.claude/skills/`:
-
-**macOS / Linux / WSL:**
+### 📥 1. Claude Code CLI Integration
+To add this skill to your global Claude Code environment:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/install.sh | bash
+mkdir -p ~/.claude/skills/ai-business-analyst
+curl -fsSL https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/.claude/skills/ai-business-analyst/SKILL.md -o ~/.claude/skills/ai-business-analyst/SKILL.md
 ```
-
-**Windows (PowerShell):**
-```powershell
-irm https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/install.ps1 | iex
-```
+Then invoke inside Claude Code: `/ai-business-analyst`
 
 ---
 
-### 💻 2. Integration by IDE & Agent Platform
+### 💻 2. IDE & Agent Platforms
 
-| AI Agent / IDE | Configuration Path | How to Use |
+| Agent / IDE | Rule File | How to Use |
 | :--- | :--- | :--- |
-| **Claude Code** | `.claude/skills/ai-business-analyst/SKILL.md` | Type `/ai-business-analyst [problem/feature]` |
-| **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` or `.cursorrules` | Automatically applies rules during composer / chat |
-| **Windsurf IDE** | `.cursorrules` | Automatically enforces EARS, BDD & Mermaid standards |
-| **ChatGPT / Claude Projects**| `.claude/skills/ai-business-analyst/SKILL.md` | Paste prompt into Custom Instructions / Project instructions |
+| **Claude Code** | `.claude/skills/ai-business-analyst/SKILL.md` | Run `/ai-business-analyst [topic]` |
+| **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` | Automatically active in Composer / Chat |
+| **Windsurf IDE** | `.cursorrules` | Automatically enforces EARS, BDD & Mermaid specs |
+| **ChatGPT / Custom GPT** | `.claude/skills/ai-business-analyst/SKILL.md` | Paste content into Project Instructions |
 
 ---
 
@@ -37,15 +32,14 @@ irm https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/m
 
 ```text
 .
-├── .claude/skills/ai-business-analyst/SKILL.md   # Official Claude Code Skill Package
-├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE rule standard
-├── .cursorrules                                  # Universal AI IDE rule
-├── install.sh / install.ps1                      # 1-Click Installers
-├── 01-elicitation/                               # Requirements Handbooks & Discovery Checklist
-├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI 3.0 Templates
-├── 03-modeling-and-specs/                        # Mermaid.js & Gherkin BDD Modeling Guidelines
-├── 04-data-dictionary/                           # Data Dictionary Markdown & Excel Standards
-└── 05-domain-knowledge/                          # Banking, Fintech, E-commerce, Healthcare Specs
+├── .claude/skills/ai-business-analyst/SKILL.md   # Official Claude Code Skill
+├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE Rule
+├── .cursorrules                                  # Universal IDE Rules
+├── 01-elicitation/                               # Discovery Handbooks & Questionnaires
+├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI Specs
+├── 03-modeling-and-specs/                        # Mermaid.js & Gherkin BDD Standards
+├── 04-data-dictionary/                           # Data Dictionary Templates
+└── 05-domain-knowledge/                          # Banking, Fintech, Retail, Healthcare Docs
 ```
 
 ---
