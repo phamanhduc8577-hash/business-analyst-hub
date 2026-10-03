@@ -1,7 +1,7 @@
 # 🏛️ Business Analyst (BA) Knowledge Hub & AI Skill Repository
 
-> **A curated, production-ready Business Analysis & Requirements Engineering Hub.**  
-> Designed for modern Human Business Analysts, Product Managers, and AI-driven Engineering Agents.
+> **A curated, lightweight, production-ready Business Analysis & Requirements Engineering Hub.**  
+> Designed for modern Technical Business Analysts, Product Managers, and AI Engineering Agents.
 
 ---
 
@@ -44,7 +44,7 @@ For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_conf
 
 ---
 
-## 📂 Repository Architecture
+## 📂 Pure Markdown Repository Architecture
 
 ```text
 .
@@ -52,11 +52,16 @@ For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_conf
 ├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE Rule
 ├── .cursorrules                                  # Universal IDE Rules
 ├── mcp-server/                                   # Standalone Zero-Dependency MCP Server
-├── 01-elicitation/                               # Discovery Handbooks & Questionnaires
-├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI Specs
+├── 01-elicitation/                               # Discovery Handbooks & Elicitation Checklist
+├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI 3.0 Specs
 ├── 03-modeling-and-specs/                        # Mermaid.js & Gherkin BDD Standards
-├── 04-data-dictionary/                           # Data Dictionary Templates
-└── 05-domain-knowledge/                          # ISO 20022, Banking, Lending & Healthcare Docs
+├── 04-data-dictionary/                           # Markdown Data Dictionary & Glossary Standards
+└── 05-domain-knowledge/                          # Core Domain Markdown Guides:
+    ├── payments-iso20022/                        # ISO 20022 Financial Messaging & SEPA Guide
+    ├── banking-finance/                          # Commercial Lending & Credit Risk (LOS/LMS)
+    ├── insurance-healthcare/                     # Healthcare Claims Adjudication (EDI 837/835)
+    ├── ecommerce-retail/                         # OMS, Inventory State Machine & Vietnam Payments
+    └── telecom-saas-esg/                         # Telecom BSS/OSS Architecture & SaaS Billing
 ```
 
 ---
@@ -78,6 +83,7 @@ For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_conf
   * *Event-Driven:* `WHEN <trigger>, THE SYSTEM SHALL <action>`
   * *State-Driven:* `WHILE <state>, THE SYSTEM SHALL <behavior>`
   * *Unwanted Behavior:* `IF <failure/error>, THEN THE SYSTEM SHALL <fallback>`
+  * *Ubiquitous:* `THE SYSTEM SHALL ALWAYS <invariant constraint>`
 * **Acceptance Criteria (Gherkin BDD):**
   * Format: `Given <Initial State> When <Trigger Event> Then <Expected Result>`
 
@@ -89,4 +95,3 @@ Render architecture and business workflows directly without external software:
 * Sequence Diagrams: `sequenceDiagram` with `autonumber`
 * Data Models: `erDiagram`
 * Object Lifecycle: `stateDiagram-v2`
-
