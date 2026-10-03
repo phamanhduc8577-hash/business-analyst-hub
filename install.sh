@@ -13,7 +13,7 @@ TARGET_DIR="${HOME}/.claude/skills/ai-business-analyst"
 mkdir -p "${TARGET_DIR}"
 
 # Source URL
-RAW_URL="https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master"
+RAW_URL="https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master"
 
 # If running locally inside repo
 if [ -f "./.claude/skills/ai-business-analyst/SKILL.md" ]; then

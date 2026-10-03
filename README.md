@@ -12,12 +12,12 @@ Run in any terminal to install the skill globally into your `~/.claude/skills/`:
 
 **macOS / Linux / WSL:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master/install.ps1 | iex
+irm https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/install.ps1 | iex
 ```
 
 ---
@@ -28,39 +28,24 @@ irm https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master/install
 | :--- | :--- | :--- |
 | **Claude Code** | `.claude/skills/ai-business-analyst/SKILL.md` | Type `/ai-business-analyst [problem/feature]` |
 | **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` or `.cursorrules` | Automatically applies rules during composer / chat |
-| **Windsurf IDE** | `.cursorrules` or `.windsurfrules` | Automatically enforces EARS, BDD & Mermaid standards |
-| **ChatGPT / Custom GPT**| `skills/ai-business-analyst.md` | Paste prompt into Custom Instructions |
+| **Windsurf IDE** | `.cursorrules` | Automatically enforces EARS, BDD & Mermaid standards |
+| **ChatGPT / Claude Projects**| `.claude/skills/ai-business-analyst/SKILL.md` | Paste prompt into Custom Instructions / Project instructions |
 
 ---
 
 ## 📂 Repository Architecture
 
 ```text
-C:\BA\
-├── README.md                           # Master Documentation & Navigation Index
-├── skills/
-│   └── ai-business-analyst.md          # Complete AI Agent / Skill Prompt & Protocol
-├── 01-elicitation/                     # 18+ Handbooks & Questionnaires for Requirements Discovery
-├── 02-templates/
-│   ├── prd/
-│   │   └── PRD-TEMPLATE.md             # Production-Ready Markdown PRD Template (AI & Human)
-│   ├── brd/                            # Business Requirements Documents & Business Cases
-│   ├── frd-srs/                        # Functional & Technical Specs (API, HRMS, Travel App...)
-│   └── rtm/
-│       └── RTM-TEMPLATE.md             # Requirements Traceability Matrix Standard
-├── 03-modeling-and-specs/
-│   ├── mermaid-diagrams/
-│   │   └── MERMAID-MODELING-GUIDE.md   # Flowcharts, Sequence Diagrams, ERDs in Markdown
-│   ├── gherkin-bdd/
-│   │   └── GHERKIN-BDD-GUIDELINES.md   # BDD Acceptance Criteria (Given-When-Then) Standard
-│   └── bpmn-uml/                       # BPMN 2.0 & UML Guides (Activity, Class, State diagrams)
-├── 04-data-dictionary/                 # Standard Excel Templates: Data Catalog, Data Dictionary
-└── 05-domain-knowledge/                # 70+ Domain Specifications & Standards
-    ├── banking-finance/                # Commercial Lending, Credit Risk, Capital Markets
-    ├── payments-iso20022/              # ISO 20022, SEPA Rulebooks, SWIFT, Clearing & Settlement
-    ├── ecommerce-retail/               # OMS, Catalog, Pricing & Promotion Engines, BRD samples
-    ├── insurance-healthcare/           # Policy Lifecycle, Claims Processing, Medicare specs
-    └── telecom-saas-esg/               # Telecom Billing (OSS/BSS), Salesforce, ServiceNow, ESG
+.
+├── .claude/skills/ai-business-analyst/SKILL.md   # Official Claude Code Skill Package
+├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE rule standard
+├── .cursorrules                                  # Universal AI IDE rule
+├── install.sh / install.ps1                      # 1-Click Installers
+├── 01-elicitation/                               # Requirements Handbooks & Discovery Checklist
+├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI 3.0 Templates
+├── 03-modeling-and-specs/                        # Mermaid.js & Gherkin BDD Modeling Guidelines
+├── 04-data-dictionary/                           # Data Dictionary Markdown & Excel Standards
+└── 05-domain-knowledge/                          # Banking, Fintech, E-commerce, Healthcare Specs
 ```
 
 ---
@@ -94,8 +79,3 @@ Render architecture and business workflows directly without external software:
 * Data Models: `erDiagram`
 * Object Lifecycle: `stateDiagram-v2`
 
----
-
-## 🤖 AI Business Analyst Skill Integration
-This repository includes a standalone AI Skill located in [`skills/ai-business-analyst.md`](./skills/ai-business-analyst.md).  
-Use this prompt/skill in Claude Code, ChatGPT, or custom Agent frameworks to convert any raw business idea into a full, developer-ready specification.

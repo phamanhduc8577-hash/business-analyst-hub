@@ -1,6 +1,6 @@
 # ==============================================================================
 # AI Business Analyst (BA) Skill Installer for Windows PowerShell
-# Repository: https://github.com/phamanhduc/ba-knowledge-hub
+# Repository: https://github.com/phamanhduc8577-hash/business-analyst-hub
 # ==============================================================================
 
 $ErrorActionPreference = "Stop"
@@ -13,7 +13,7 @@ if (!(Test-Path -Path $TargetDir)) {
 }
 
 $LocalSkill = ".\.claude\skills\ai-business-analyst\SKILL.md"
-$RawUrl = "https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master/.claude/skills/ai-business-analyst/SKILL.md"
+$RawUrl = "https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/.claude/skills/ai-business-analyst/SKILL.md"
 $Destination = Join-Path $TargetDir "SKILL.md"
 
 if (Test-Path -Path $LocalSkill) {
