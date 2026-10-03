@@ -8,53 +8,58 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Elicitation', link: '/01-elicitation/CHECKLIST-ELICITATION' },
-      { text: 'Templates', link: '/02-templates/prd/PRD-TEMPLATE' },
-      { text: 'Modeling & BDD', link: '/03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE' },
-      { text: 'Data Dictionary', link: '/04-data-dictionary/DATA-DICTIONARY-TEMPLATE' },
-      { text: 'Vietnam Payments', link: '/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS' },
-      { text: 'AI BA Skill', link: '/skills/ai-business-analyst' }
+      { text: 'Elicitation', link: '/docs/01-elicitation/CHECKLIST-ELICITATION' },
+      { text: 'Templates', link: '/docs/02-templates/prd/PRD-TEMPLATE' },
+      { text: 'Modeling & BDD', link: '/docs/03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE' },
+      { text: 'Data Dictionary', link: '/docs/04-data-dictionary/DATA-DICTIONARY-TEMPLATE' },
+      { text: 'Vietnam Payments', link: '/docs/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS' },
+      { text: 'AI BA Skill', link: '/.claude/skills/ai-business-analyst/SKILL' }
     ],
 
     sidebar: [
       {
         text: '📌 01. Elicitation & Discovery',
         items: [
-          { text: 'Checklist Elicitation (BABOK v3)', link: '/01-elicitation/CHECKLIST-ELICITATION' }
+          { text: 'Checklist Elicitation (BABOK v3)', link: '/docs/01-elicitation/CHECKLIST-ELICITATION' }
         ]
       },
       {
         text: '📋 02. Templates & Standards',
         items: [
-          { text: 'Product Requirements (PRD)', link: '/02-templates/prd/PRD-TEMPLATE' },
-          { text: 'Business Requirements (BRD)', link: '/02-templates/brd/BRD-TEMPLATE' },
-          { text: 'Software Requirements (SRS/FRD)', link: '/02-templates/frd-srs/SRS-FRD-TEMPLATE' },
-          { text: 'Traceability Matrix (RTM)', link: '/02-templates/rtm/RTM-TEMPLATE' }
+          { text: 'Product Requirements (PRD)', link: '/docs/02-templates/prd/PRD-TEMPLATE' },
+          { text: 'Business Requirements (BRD)', link: '/docs/02-templates/brd/BRD-TEMPLATE' },
+          { text: 'Software Requirements (SRS/FRD)', link: '/docs/02-templates/frd-srs/SRS-FRD-TEMPLATE' },
+          { text: 'Traceability Matrix (RTM)', link: '/docs/02-templates/rtm/RTM-TEMPLATE' }
         ]
       },
       {
         text: '📐 03. Modeling & BDD Guidelines',
         items: [
-          { text: 'Mermaid.js Visual Modeling', link: '/03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE' },
-          { text: 'Gherkin BDD Acceptance Criteria', link: '/03-modeling-and-specs/gherkin-bdd/GHERKIN-BDD-GUIDELINES' }
+          { text: 'Mermaid.js Visual Modeling', link: '/docs/03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE' },
+          { text: 'Gherkin BDD Acceptance Criteria', link: '/docs/03-modeling-and-specs/gherkin-bdd/GHERKIN-BDD-GUIDELINES' }
         ]
       },
       {
         text: '📊 04. Data Modeling',
         items: [
-          { text: 'Data Dictionary & Schema Catalog', link: '/04-data-dictionary/DATA-DICTIONARY-TEMPLATE' }
+          { text: 'Data Dictionary & Schema Catalog', link: '/docs/04-data-dictionary/DATA-DICTIONARY-TEMPLATE' }
         ]
       },
       {
         text: '🇻🇳 05. Domain Knowledge',
         items: [
-          { text: 'Case Study: Vietnam Payments (VNPAY/MoMo)', link: '/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS' }
+          { text: 'ISO 20022 Payments & SEPA', link: '/docs/05-domain-knowledge/payments-iso20022/ISO-20022-PAYMENTS-GUIDE' },
+          { text: 'Commercial Lending & Credit Risk', link: '/docs/05-domain-knowledge/banking-finance/COMMERCIAL-LENDING-CREDIT-RISK-GUIDE' },
+          { text: 'Healthcare Claims Adjudication', link: '/docs/05-domain-knowledge/insurance-healthcare/HEALTH-INSURANCE-CLAIMS-GUIDE' },
+          { text: 'E-Commerce & Retail Systems', link: '/docs/05-domain-knowledge/ecommerce-retail/ECOMMERCE-RETAIL-SYSTEMS-GUIDE' },
+          { text: 'Telecom BSS/OSS Systems', link: '/docs/05-domain-knowledge/telecom-saas-esg/TELECOM-SAAS-SYSTEMS-GUIDE' },
+          { text: 'Case Study: Vietnam Payments', link: '/docs/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS' }
         ]
       },
       {
         text: '🤖 AI Agent Integration',
         items: [
-          { text: 'AI Business Analyst Protocol', link: '/skills/ai-business-analyst' }
+          { text: 'AI Business Analyst Skill', link: '/.claude/skills/ai-business-analyst/SKILL' }
         ]
       }
     ],

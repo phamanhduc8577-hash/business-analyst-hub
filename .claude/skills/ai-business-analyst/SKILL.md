@@ -9,7 +9,7 @@ argument-hint: "[feature-description-or-problem-statement]"
 metadata:
   author: "Pham Anh Duc"
   version: "1.0.0"
-  repository: "https://github.com/phamanhduc/ba-knowledge-hub"
+  repository: "https://github.com/phamanhduc8577-hash/business-analyst-hub"
 ---
 
 # 🏛️ AI Technical Business Analyst (BA) Skill
@@ -74,10 +74,10 @@ Always provide visual architecture and process maps directly in Markdown:
 
 ## 📂 Reference Templates & Standards
 
-When producing outputs, strictly follow repository standards:
-- **PRD Template:** `02-templates/prd/PRD-TEMPLATE.md`
-- **SRS / FRD Template:** `02-templates/frd-srs/SRS-FRD-TEMPLATE.md`
-- **Mermaid Guidelines:** `03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE.md`
-- **Gherkin BDD Guidelines:** `03-modeling-and-specs/gherkin-bdd/GHERKIN-BDD-GUIDELINES.md`
-- **Data Dictionary:** `04-data-dictionary/DATA-DICTIONARY-TEMPLATE.md`
-- **Elicitation Checklist:** `01-elicitation/CHECKLIST-ELICITATION.md`
+When producing outputs, strictly follow repository standards in `docs/`:
+- **PRD Template:** `docs/02-templates/prd/PRD-TEMPLATE.md`
+- **SRS / FRD Template:** `docs/02-templates/frd-srs/SRS-FRD-TEMPLATE.md`
+- **Mermaid Guidelines:** `docs/03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE.md`
+- **Gherkin BDD Guidelines:** `docs/03-modeling-and-specs/gherkin-bdd/GHERKIN-BDD-GUIDELINES.md`
+- **Data Dictionary:** `docs/04-data-dictionary/DATA-DICTIONARY-TEMPLATE.md`
+- **Elicitation Checklist:** `docs/01-elicitation/CHECKLIST-ELICITATION.md`

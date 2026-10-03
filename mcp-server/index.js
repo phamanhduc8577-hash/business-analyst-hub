@@ -56,15 +56,15 @@ const TOOLS = [
 ];
 
 const TEMPLATE_MAP = {
-  prd: '02-templates/prd/PRD-TEMPLATE.md',
-  srs: '02-templates/frd-srs/SRS-FRD-TEMPLATE.md',
-  brd: '02-templates/brd/BRD-TEMPLATE.md',
-  rtm: '02-templates/rtm/RTM-TEMPLATE.md',
-  data_dictionary: '04-data-dictionary/DATA-DICTIONARY-TEMPLATE.md',
-  elicitation_checklist: '01-elicitation/CHECKLIST-ELICITATION.md',
-  iso20022_payments: '05-domain-knowledge/payments-iso20022/ISO-20022-PAYMENTS-GUIDE.md',
-  credit_risk_lending: '05-domain-knowledge/banking-finance/COMMERCIAL-LENDING-CREDIT-RISK-GUIDE.md',
-  health_insurance: '05-domain-knowledge/insurance-healthcare/HEALTH-INSURANCE-CLAIMS-GUIDE.md'
+  prd: 'docs/02-templates/prd/PRD-TEMPLATE.md',
+  srs: 'docs/02-templates/frd-srs/SRS-FRD-TEMPLATE.md',
+  brd: 'docs/02-templates/brd/BRD-TEMPLATE.md',
+  rtm: 'docs/02-templates/rtm/RTM-TEMPLATE.md',
+  data_dictionary: 'docs/04-data-dictionary/DATA-DICTIONARY-TEMPLATE.md',
+  elicitation_checklist: 'docs/01-elicitation/CHECKLIST-ELICITATION.md',
+  iso20022_payments: 'docs/05-domain-knowledge/payments-iso20022/ISO-20022-PAYMENTS-GUIDE.md',
+  credit_risk_lending: 'docs/05-domain-knowledge/banking-finance/COMMERCIAL-LENDING-CREDIT-RISK-GUIDE.md',
+  health_insurance: 'docs/05-domain-knowledge/insurance-healthcare/HEALTH-INSURANCE-CLAIMS-GUIDE.md'
 };
 
 function handleToolCall(name, args) {

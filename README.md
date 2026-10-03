@@ -52,16 +52,17 @@ For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_conf
 ├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE Rule
 ├── .cursorrules                                  # Universal IDE Rules
 ├── mcp-server/                                   # Standalone Zero-Dependency MCP Server
-├── 01-elicitation/                               # Discovery Handbooks & Elicitation Checklist
-├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI 3.0 Specs
-├── 03-modeling-and-specs/                        # Mermaid.js & Gherkin BDD Standards
-├── 04-data-dictionary/                           # Markdown Data Dictionary & Glossary Standards
-└── 05-domain-knowledge/                          # Core Domain Markdown Guides:
-    ├── payments-iso20022/                        # ISO 20022 Financial Messaging & SEPA Guide
-    ├── banking-finance/                          # Commercial Lending & Credit Risk (LOS/LMS)
-    ├── insurance-healthcare/                     # Healthcare Claims Adjudication (EDI 837/835)
-    ├── ecommerce-retail/                         # OMS, Inventory State Machine & Vietnam Payments
-    └── telecom-saas-esg/                         # Telecom BSS/OSS Architecture & SaaS Billing
+└── docs/                                         # Structured Knowledge & Specifications:
+    ├── 01-elicitation/                           # Discovery Handbooks & Elicitation Checklist
+    ├── 02-templates/                             # PRD, BRD, SRS/FRD, RTM & OpenAPI 3.0 Specs
+    ├── 03-modeling-and-specs/                    # Mermaid.js & Gherkin BDD Standards
+    ├── 04-data-dictionary/                       # Markdown Data Dictionary & Glossary Standards
+    └── 05-domain-knowledge/                      # Domain Markdown Guides:
+        ├── payments-iso20022/                    # ISO 20022 Financial Messaging & SEPA Guide
+        ├── banking-finance/                      # Commercial Lending & Credit Risk (LOS/LMS)
+        ├── insurance-healthcare/                 # Healthcare Claims Adjudication (EDI 837/835)
+        ├── ecommerce-retail/                     # OMS, Inventory State Machine & Vietnam Payments
+        └── telecom-saas-esg/                     # Telecom BSS/OSS Architecture & SaaS Billing
 ```
 
 ---
