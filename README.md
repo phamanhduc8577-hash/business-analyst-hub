@@ -5,6 +5,34 @@
 
 ---
 
+## 🤖 1-Click Skill Installation & AI Agent Usage
+
+### 📥 1. One-Click Install for Claude Code CLI
+Run in any terminal to install the skill globally into your `~/.claude/skills/`:
+
+**macOS / Linux / WSL:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master/install.sh | bash
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/phamanhduc/ba-knowledge-hub/master/install.ps1 | iex
+```
+
+---
+
+### 💻 2. Integration by IDE & Agent Platform
+
+| AI Agent / IDE | Configuration Path | How to Use |
+| :--- | :--- | :--- |
+| **Claude Code** | `.claude/skills/ai-business-analyst/SKILL.md` | Type `/ai-business-analyst [problem/feature]` |
+| **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` or `.cursorrules` | Automatically applies rules during composer / chat |
+| **Windsurf IDE** | `.cursorrules` or `.windsurfrules` | Automatically enforces EARS, BDD & Mermaid standards |
+| **ChatGPT / Custom GPT**| `skills/ai-business-analyst.md` | Paste prompt into Custom Instructions |
+
+---
+
 ## 📂 Repository Architecture
 
 ```text
