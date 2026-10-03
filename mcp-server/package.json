@@ -1,0 +1,25 @@
+{
+  "name": "business-analyst-hub-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) Server for AI Business Analyst Knowledge Hub",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "ba-hub-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "mcp",
+    "business-analyst",
+    "ears",
+    "gherkin",
+    "bdd",
+    "prd",
+    "srs"
+  ],
+  "author": "Pham Anh Duc",
+  "license": "MIT"
+}

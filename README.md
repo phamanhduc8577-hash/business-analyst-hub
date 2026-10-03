@@ -24,7 +24,23 @@ Then invoke inside Claude Code: `/ai-business-analyst`
 | **Claude Code** | `.claude/skills/ai-business-analyst/SKILL.md` | Run `/ai-business-analyst [topic]` |
 | **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` | Automatically active in Composer / Chat |
 | **Windsurf IDE** | `.cursorrules` | Automatically enforces EARS, BDD & Mermaid specs |
+| **Claude Desktop (MCP)**| `mcp-server/index.js` | Direct Tool calling (EARS validator, template generator) |
 | **ChatGPT / Custom GPT** | `.claude/skills/ai-business-analyst/SKILL.md` | Paste content into Project Instructions |
+
+---
+
+### 🔌 3. MCP Server (Model Context Protocol) Integration
+For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "business-analyst-hub": {
+      "command": "node",
+      "args": ["<path-to-repo>/mcp-server/index.js"]
+    }
+  }
+}
+```
 
 ---
 
@@ -35,11 +51,12 @@ Then invoke inside Claude Code: `/ai-business-analyst`
 ├── .claude/skills/ai-business-analyst/SKILL.md   # Official Claude Code Skill
 ├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE Rule
 ├── .cursorrules                                  # Universal IDE Rules
+├── mcp-server/                                   # Standalone Zero-Dependency MCP Server
 ├── 01-elicitation/                               # Discovery Handbooks & Questionnaires
 ├── 02-templates/                                 # PRD, BRD, SRS/FRD, RTM & OpenAPI Specs
 ├── 03-modeling-and-specs/                        # Mermaid.js & Gherkin BDD Standards
 ├── 04-data-dictionary/                           # Data Dictionary Templates
-└── 05-domain-knowledge/                          # Banking, Fintech, Retail, Healthcare Docs
+└── 05-domain-knowledge/                          # ISO 20022, Banking, Lending & Healthcare Docs
 ```
 
 ---
