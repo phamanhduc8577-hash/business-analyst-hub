@@ -55,7 +55,7 @@ sequenceDiagram
 
 ---
 
-## 3. Đặc tả Yêu cầu Kỹ thuật Chống Gian lận & Thất thoát (Business Rules)
+## 3. Đặc tả Yêu cầu Kỹ thuật Chống Gian lận & Thất thoát (Business Rules & EARS)
 
 ### 3.1 Quy tắc Checksum & Bảo mật giao dịch
 * **Quy tắc 1 (Tạo Checksum):** Mọi request sang cổng thanh toán phải được sắp xếp key theo thứ tự alphabet (`ASCII sort`) và hash HMAC-SHA512 với `SecretKey`.
@@ -71,7 +71,19 @@ sequenceDiagram
 
 ---
 
-## 4. BDD Acceptance Criteria (Gherkin Chuẩn)
+## 4. Đặc tả Yêu cầu Chức năng theo Cú pháp EARS (Production Standard)
+
+| Mã Yêu Cầu | Mẫu EARS | Đặc tả Kỹ thuật Chi tiết |
+| :--- | :--- | :--- |
+| **REQ-PAY-01** | *Event-Driven* | `WHEN khách hàng bấm "Xác nhận thanh toán", THE SYSTEM SHALL tạo bản ghi payment_transaction ở trạng thái INITIATED và trả về Dynamic VietQR payload trong vòng 300ms.` |
+| **REQ-PAY-02** | *Event-Driven* | `WHEN nhận được Webhook IPN từ VNPAY/VietQR với chữ ký HMAC hợp lệ và số tiền khớp 100%, THE SYSTEM SHALL chuyển trạng thái đơn hàng sang PAID và giảm tồn kho vật lý (Commit Inventory) trong cùng một Atomic Database Transaction.` |
+| **REQ-PAY-03** | *Unwanted Behavior* | `IF chữ ký HMAC-SHA512 của IPN không hợp lệ hoặc số tiền bị sai lệch, THEN THE SYSTEM SHALL từ chối cập nhật trạng thái đơn hàng, ghi log Fraud Alert mức SEVERITY-HIGH và trả về HTTP 200 {"RspCode": "97"}.` |
+| **REQ-PAY-04** | *State-Driven* | `WHILE giao dịch đang ở trạng thái PENDING_PAYMENT và quá thời gian TTL 15 phút, THE SYSTEM SHALL tự động chuyển trạng thái sang EXPIRED và hoàn trả số lượng Reserved Inventory về kho bán lẻ.` |
+| **REQ-PAY-05** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS ghi nhận Idempotency-Key và Correlation-ID cho mọi yêu cầu khởi tạo thanh toán và webhook IPN để chống xử lý trùng lặp giao dịch.` |
+
+---
+
+## 5. BDD Acceptance Criteria (Gherkin Chuẩn - Happy, Negative & Edge Cases)
 
 ```gherkin
 Feature: Xử lý thanh toán qua Cổng VNPAY / VietQR
@@ -80,7 +92,7 @@ Feature: Xử lý thanh toán qua Cổng VNPAY / VietQR
     Given Khách hàng có đơn hàng #DH1009 với tổng tiền 1,200,000 VND
     And Đơn hàng đang ở trạng thái "PENDING_PAYMENT"
 
-  Scenario: Xử lý IPN thanh toán thành công
+  Scenario: Xử lý IPN thanh toán thành công (Happy Path)
     Given Cổng VNPAY gửi request IPN với:
       | order_id       | DH1009      |
       | amount         | 120000000   |
@@ -92,10 +104,55 @@ Feature: Xử lý thanh toán qua Cổng VNPAY / VietQR
     And Tạo bản ghi thanh toán thành công trong bảng "payment_transactions"
     And Trả về cho VNPAY JSON {"RspCode": "00", "Message": "Confirm Success"}
 
-  Scenario: Phát hiện thao túng số tiền (Fraud Detection)
+  Scenario: Phát hiện thao túng số tiền (Negative Path / Fraud Detection)
     Given Kẻ gian giả mạo IPN gửi số tiền thanh toán là 10,000 VND cho đơn hàng 1,200,000 VND
     When Backend kiểm tra số tiền nhận về không khớp với đơn hàng
     Then Hệ thống ghi log cảnh báo bảo mật mức "CRITICAL"
     And Giữ nguyên trạng thái đơn hàng là "PENDING_PAYMENT"
     And Trả về JSON {"RspCode": "04", "Message": "Invalid Amount"}
+
+  Scenario: Xử lý IPN lặp do mạng chập chờn (Edge Case / Idempotent Webhook Retry)
+    Given Đơn hàng #DH1009 đã được xử lý và có trạng thái "PAID"
+    When Cổng thanh toán retry gửi lại IPN thành công lần 2
+    Then Hệ thống nhận diện Idempotency-Key đã xử lý
+    And Không thực hiện trừ kho hay gửi email khách hàng lần thứ hai
+    And Trả về ngay JSON {"RspCode": "02", "Message": "Order already confirmed"}
 ```
+
+---
+
+## 6. Sơ đồ Vòng đời Trạng thái Giao dịch (State Machine)
+
+```mermaid
+stateDiagram-v2
+    [*] --> INITIATED: Khách chọn Thanh toán
+    INITIATED --> PENDING_PAYMENT: Render VietQR / Redirect Gateway
+    
+    PENDING_PAYMENT --> PAID: IPN Webhook (HMAC Valid & Code=00)
+    PENDING_PAYMENT --> FAILED: Khách hủy / Gateway từ chối (Code!=00)
+    PENDING_PAYMENT --> EXPIRED: TTL > 15 Phút (Cronjob Release Stock)
+    
+    PAID --> REFUND_REQUESTED: Khách yêu cầu hoàn tiền
+    REFUND_REQUESTED --> REFUNDED: Cổng hoàn tiền thành công
+    
+    FAILED --> [*]
+    EXPIRED --> [*]
+    REFUNDED --> [*]
+```
+
+---
+
+## 7. Bảng Từ điển Dữ liệu Giao dịch Thanh toán (Data Dictionary)
+
+| Tên Trường | Kiểu Dữ Liệu | Nullable | Mặc Định | Ràng Buộc & Quy Tắc Nghiệp Vụ | Nhạy Cảm (PII) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `transaction_id` | `VARCHAR(64)` | NOT NULL | UUID v4 | Khóa chính, duy nhất toàn hệ thống | Không |
+| `order_id` | `VARCHAR(32)` | NOT NULL | - | Khóa ngoại trỏ bảng `orders(id)` | Không |
+| `idempotency_key` | `VARCHAR(128)` | NOT NULL | - | Unique Key, ngăn chặn double-spending | Không |
+| `payment_method` | `ENUM` | NOT NULL | `VIETQR` | `VIETQR`, `VNPAY_ATM`, `VNPAY_QR`, `MOMO`, `ZALOPAY`, `COD` | Không |
+| `amount` | `DECIMAL(15,2)`| NOT NULL | `0.00` | Số tiền VNĐ $\ge 1,000$. Phải khớp 100% `order.total_amount` | Không |
+| `status` | `ENUM` | NOT NULL | `INITIATED` | `INITIATED`, `PENDING_PAYMENT`, `PAID`, `FAILED`, `EXPIRED`, `REFUNDED` | Không |
+| `gateway_transaction_no` | `VARCHAR(100)` | NULL | NULL | Mã giao dịch từ VNPAY/Napas/MoMo trả về | Không |
+| `raw_ipn_payload` | `JSONB` | NULL | NULL | Toàn bộ payload IPN để phục vụ audit/đối soát | Có (Mask số thẻ) |
+| `created_at` | `TIMESTAMPTZ` | NOT NULL | `NOW()` | Thời điểm khởi tạo giao dịch | Không |
+

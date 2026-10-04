@@ -21,8 +21,8 @@ serverProcess.stdout.on('data', (data) => {
       const resp = JSON.parse(line);
 
       if (resp.id === 1) {
-        if (resp.result.tools && resp.result.tools.length >= 3) {
-          console.log('  ✅ PASS: tools/list returned 3 MCP tools');
+        if (resp.result.tools && resp.result.tools.length >= 4) {
+          console.log('  ✅ PASS: tools/list returned 4 MCP tools');
           testPassed++;
         } else {
           console.error('  ❌ FAIL: tools/list incomplete');
@@ -70,6 +70,31 @@ serverProcess.stdout.on('data', (data) => {
           testPassed++;
         } else {
           console.error('  ❌ FAIL: get_ba_template content mismatch');
+          testFailed++;
+        }
+
+        // Test 4: Call audit_prd_quality
+        sendRpc({
+          jsonrpc: '2.0',
+          id: 4,
+          method: 'tools/call',
+          params: {
+            name: 'audit_prd_quality',
+            arguments: {
+              documentText: 'System must be fast and secure. WHEN user clicks, THE SYSTEM SHALL send pacs.008. Given valid data When send Then ok with idempotency. P99 latency < 100ms.'
+            }
+          }
+        });
+      }
+
+      if (resp.id === 4) {
+        const text = resp.result.content[0].text;
+        const parsed = JSON.parse(text);
+        if (parsed.score !== undefined && parsed.issues && parsed.strengths) {
+          console.log(`  ✅ PASS: audit_prd_quality scored document successfully (Score: ${parsed.score}/100, Rating: ${parsed.rating})`);
+          testPassed++;
+        } else {
+          console.error('  ❌ FAIL: audit_prd_quality failed');
           testFailed++;
         }
 
