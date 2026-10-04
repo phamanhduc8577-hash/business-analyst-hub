@@ -1,0 +1,31 @@
+name: "Bug Report / Ambiguity Report"
+description: "Report an invalid EARS pattern, broken diagram, or broken MCP tool"
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting an issue in the Business Analyst Hub!
+  - type: input
+    id: location
+    attributes:
+      label: Affected Document or Tool
+      description: Where is the bug (e.g. `mcp-server/index.js`, `docs/05-domain-knowledge/...`)?
+      placeholder: "e.g. docs/05-domain-knowledge/payments-iso20022/ISO-20022-PAYMENTS-GUIDE.md"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: What is incorrect, ambiguous, or failing?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Correct Behavior / Standard
+      description: What should the correct EARS/BDD/MCP output be?
+    validations:
+      required: true

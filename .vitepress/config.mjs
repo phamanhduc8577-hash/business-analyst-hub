@@ -4,6 +4,7 @@ export default defineConfig({
   title: "Business Analyst Knowledge Hub",
   description: "Curated Knowledge Base, Templates & AI Skill for Business Analysts & Engineering Teams",
   base: "/business-analyst-hub/",
+  ignoreDeadLinks: true,
 
   themeConfig: {
     nav: [

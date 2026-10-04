@@ -1,13 +1,49 @@
 {
-  "name": "business-analyst-hub",
+  "name": "@phamanhduc/ba-hub",
   "version": "1.0.0",
-  "description": "Business Analyst Knowledge Hub & AI Skill Repository",
+  "description": "Business Analyst Knowledge Hub & AI Skill Repository for Claude Code, Cursor, Windsurf, and Claude Desktop MCP",
   "type": "module",
+  "bin": {
+    "ba-hub": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    ".claude/",
+    ".cursor/",
+    ".cursorrules",
+    "docs/",
+    "mcp-server/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "business-analyst",
+    "ai-agent",
+    "claude-code",
+    "cursor",
+    "windsurf",
+    "mcp-server",
+    "ears-requirements",
+    "gherkin-bdd",
+    "jira",
+    "linear"
+  ],
+  "author": "Pham Anh Duc",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phamanhduc8577-hash/business-analyst-hub.git"
+  },
+  "bugs": {
+    "url": "https://github.com/phamanhduc8577-hash/business-analyst-hub/issues"
+  },
+  "homepage": "https://phamanhduc8577-hash.github.io/business-analyst-hub/",
   "scripts": {
     "docs:dev": "vitepress dev .",
     "docs:build": "vitepress build .",
     "docs:preview": "vitepress preview .",
-    "test:mcp": "node mcp-server/test.js"
+    "test:mcp": "node mcp-server/test.js",
+    "test:cli": "node bin/cli.js --help"
   },
   "devDependencies": {
     "vitepress": "^1.6.4"

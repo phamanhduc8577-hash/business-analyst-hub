@@ -1,36 +1,52 @@
 # 🏛️ Business Analyst (BA) Knowledge Hub & AI Skill Repository
 
+<p align="center">
+  <a href="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions"><img src="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+  <a href="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions"><img src="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions/workflows/deploy-docs.yml/badge.svg" alt="Docs Deploy" /></a>
+  <a href="https://www.npmjs.com/package/@phamanhduc/ba-hub"><img src="https://img.shields.io/badge/npm-v1.0.0-blue.svg" alt="npm package" /></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+  <a href="https://phamanhduc8577-hash.github.io/business-analyst-hub/"><img src="https://img.shields.io/badge/Live_Docs-VitePress-646cff.svg" alt="Live Docs" /></a>
+</p>
+
 > **A curated, lightweight, production-ready Business Analysis & Requirements Engineering Hub.**  
-> Designed for modern Technical Business Analysts, Product Managers, and AI Engineering Agents.
+> Designed for modern Technical Business Analysts, Product Managers, and AI Engineering Agents (Claude Code, Cursor, Windsurf, Claude Desktop MCP).
 
 ---
 
-## 🤖 AI Skill Integration & Usage
+## ⚡ 1-Click Fast Installation (CLI)
 
-### 📥 1. Claude Code CLI Integration
-To add this skill to your global Claude Code environment:
+Install the skill across all your IDEs and Claude Code environment instantly:
+
 ```bash
-mkdir -p ~/.claude/skills/ai-business-analyst
-curl -fsSL https://raw.githubusercontent.com/phamanhduc8577-hash/business-analyst-hub/master/.claude/skills/ai-business-analyst/SKILL.md -o ~/.claude/skills/ai-business-analyst/SKILL.md
+# Initialize skill into Claude Code (~/.claude) & current workspace (.cursor/.cursorrules)
+npx @phamanhduc/ba-hub init
 ```
-Then invoke inside Claude Code: `/ai-business-analyst`
 
 ---
 
-### 💻 2. IDE & Agent Platforms
+## 🤖 Multi-Platform AI Skill Integration
 
-| Agent / IDE | Rule File | How to Use |
+| Platform / Agent | Rule / Configuration | How to Use |
 | :--- | :--- | :--- |
-| **Claude Code** | `.claude/skills/ai-business-analyst/SKILL.md` | Run `/ai-business-analyst [topic]` |
-| **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` | Automatically active in Composer / Chat |
+| **Claude Code CLI** | `.claude/skills/ai-business-analyst/SKILL.md` | Run `/ai-business-analyst [topic]` |
+| **Cursor IDE** | `.cursor/rules/ai-business-analyst.mdc` | Automatically active in Composer & Chat |
 | **Windsurf IDE** | `.cursorrules` | Automatically enforces EARS, BDD & Mermaid specs |
-| **Claude Desktop (MCP)**| `mcp-server/index.js` | Direct Tool calling (EARS validator, template generator) |
-| **ChatGPT / Custom GPT** | `.claude/skills/ai-business-analyst/SKILL.md` | Paste content into Project Instructions |
+| **Claude Desktop (MCP)**| `mcp-server/index.js` | Direct Tool calling (EARS linter, Jira exporter) |
+| **ChatGPT / Custom GPT** | `.claude/skills/ai-business-analyst/SKILL.md` | Paste into Project Instructions |
 
 ---
 
-### 🔌 3. MCP Server (Model Context Protocol) Integration
-For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_config.json`:
+## 🔌 Zero-Dependency MCP Server (Model Context Protocol)
+
+Provides 5 standalone MCP tools for AI Agents and Claude Desktop:
+
+1. `get_ba_template`: Fetch production-ready PRD, SRS, BRD, RTM, and domain guides.
+2. `validate_ears_requirement`: Validate EARS syntax (*Event, State, Unwanted, Ubiquitous*).
+3. `generate_gherkin_scenarios`: Generate Happy Path, Negative Path, and Concurrency test scenarios.
+4. `audit_prd_quality`: Lints PRDs for vague buzzwords, missing SLOs, and edge cases.
+5. `export_to_jira_format`: Convert User Stories into Jira markup & Linear markdown.
+
+### Add to Claude Desktop (`claude_desktop_config.json`):
 ```json
 {
   "mcpServers": {
@@ -48,6 +64,7 @@ For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_conf
 
 ```text
 .
+├── bin/cli.js                                    # Zero-dependency CLI installer (ba-hub)
 ├── .claude/skills/ai-business-analyst/SKILL.md   # Official Claude Code Skill
 ├── .cursor/rules/ai-business-analyst.mdc         # Cursor IDE Rule
 ├── .cursorrules                                  # Universal IDE Rules
@@ -61,38 +78,39 @@ For Claude Desktop or any MCP-compliant client, add to your `claude_desktop_conf
         ├── payments-iso20022/                    # ISO 20022 Financial Messaging & SEPA Guide
         ├── banking-finance/                      # Commercial Lending & Credit Risk (LOS/LMS)
         ├── insurance-healthcare/                 # Healthcare Claims Adjudication (EDI 837/835)
-        ├── ecommerce-retail/                     # OMS, Inventory State Machine & Vietnam Payments
+        ├── ecommerce-retail/                     # OMS, State Machine & Vietnam Payments Spec
         └── telecom-saas-esg/                     # Telecom BSS/OSS Architecture & SaaS Billing
 ```
 
 ---
 
-## 🚀 Quick Reference Guides
+## 🚀 Specification & Modeling Standards
 
-### 1. Document Taxonomy (Which document to write?)
-| Stage | Document | Target Audience | Primary Content |
-| :--- | :--- | :--- | :--- |
-| **Discovery** | `BRD` | C-Level, Sponsors | Business Problem, ROI, Scope, Business Case |
-| **Product** | `PRD` | PO, Designers, Tech Lead | User Personas, User Journeys, Feature Scope (RICE/MoSCoW) |
-| **Engineering** | `FRD / SRS` | Software Developers | Detailed Logic, API Endpoints, EARS syntax, NFRs, SLA |
-| **QA / Delivery**| `RTM` | QA, Project Manager | Mapping: `Business Need` $\rightarrow$ `User Story` $\rightarrow$ `API` $\rightarrow$ `Test Case` |
+### 1. Requirements Syntax (EARS)
+* **Event-Driven:** `WHEN <trigger>, THE SYSTEM SHALL <action>`
+* **State-Driven:** `WHILE <state>, THE SYSTEM SHALL <behavior>`
+* **Unwanted Behavior:** `IF <failure/error>, THEN THE SYSTEM SHALL <fallback>`
+* **Ubiquitous:** `THE SYSTEM SHALL ALWAYS <invariant constraint>`
 
----
-
-### 2. Specification Standards
-* **Requirements Syntax (EARS):**
-  * *Event-Driven:* `WHEN <trigger>, THE SYSTEM SHALL <action>`
-  * *State-Driven:* `WHILE <state>, THE SYSTEM SHALL <behavior>`
-  * *Unwanted Behavior:* `IF <failure/error>, THEN THE SYSTEM SHALL <fallback>`
-  * *Ubiquitous:* `THE SYSTEM SHALL ALWAYS <invariant constraint>`
-* **Acceptance Criteria (Gherkin BDD):**
-  * Format: `Given <Initial State> When <Trigger Event> Then <Expected Result>`
-
----
+### 2. Acceptance Criteria (Gherkin BDD)
+```gherkin
+Scenario: [Happy Path / Concurrency Edge Case]
+  Given [Precondition]
+  When [Trigger Event]
+  Then [Expected Result]
+  And [Atomic State Verified]
+```
 
 ### 3. Visual Modeling (Mermaid in Markdown)
-Render architecture and business workflows directly without external software:
-* Flowcharts: `flowchart TD`
-* Sequence Diagrams: `sequenceDiagram` with `autonumber`
-* Data Models: `erDiagram`
-* Object Lifecycle: `stateDiagram-v2`
+* Process Flows: `flowchart TD`
+* API Webhooks: `sequenceDiagram` with `autonumber`
+* Lifecycle State Machine: `stateDiagram-v2`
+* Data Domain Models: `erDiagram`
+
+---
+
+## 🤝 Contributing & License
+
+Contributions are warmly welcomed! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on code of conduct and submitting pull requests.
+
+Distributed under the **MIT License**. See [LICENSE](./LICENSE) for more information.

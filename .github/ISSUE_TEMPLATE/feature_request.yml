@@ -1,0 +1,31 @@
+name: "Feature Request / Template Proposal"
+description: "Suggest a new BA template, domain guide, or MCP tool"
+title: "[FEATURE]: "
+labels: ["enhancement", "proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement to the Business Analyst Knowledge Hub!
+  - type: input
+    id: domain
+    attributes:
+      label: Domain / Category
+      description: What domain does this feature belong to (e.g., Banking, Healthcare, E-Commerce, MCP Tools)?
+      placeholder: "e.g. Fintech / ISO 20022"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Business Problem / Description
+      description: Explain what requirement specification or template is missing and why it is useful for AI Agents and BAs.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution & Standards
+      description: Outline the proposed EARS requirements, Mermaid diagrams, or BDD scenarios.
+    validations:
+      required: false

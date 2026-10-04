@@ -66,6 +66,21 @@ const TOOLS = [
       },
       required: ['documentText']
     }
+  },
+  {
+    name: 'export_to_jira_format',
+    description: 'Converts User Stories and Acceptance Criteria into clean Jira & Linear importable Markdown format with Epic, Story Points, Components, and BDD Panels.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        issueKey: { type: 'string', description: 'Jira Key or ID, e.g. PROJ-101' },
+        summary: { type: 'string', description: 'One-line Jira issue summary' },
+        userStory: { type: 'string', description: 'As a [role], I want [action] so that [benefit]' },
+        acceptanceCriteria: { type: 'string', description: 'Gherkin BDD or bulleted criteria' },
+        storyPoints: { type: 'number', description: 'Estimated Fibonacci story points (1, 2, 3, 5, 8)' }
+      },
+      required: ['summary', 'userStory', 'acceptanceCriteria']
+    }
   }
 ];
 
@@ -253,6 +268,55 @@ function handleToolCall(name, args) {
       content: [{
         type: 'text',
         text: JSON.stringify(report, null, 2)
+      }]
+    };
+  }
+
+  if (name === 'export_to_jira_format') {
+    const { issueKey, summary, userStory, acceptanceCriteria, storyPoints } = args;
+    const pointsText = storyPoints ? `*Story Points:* ${storyPoints}\n` : '';
+    const keyHeader = issueKey ? `[${issueKey}] ` : '';
+
+    const jiraFormatted = `h2. ${keyHeader}${summary}
+
+*Type:* Story
+${pointsText}*Status:* To Do
+
+h3. 📝 User Story
+{panel:bgColor=#F4F5F7}
+${userStory}
+{panel}
+
+h3. ✅ Acceptance Criteria & Test Scenarios
+{code:gherkin}
+${acceptanceCriteria}
+{code}
+
+h3. 📌 Technical Notes & Architecture
+* *Engineered with:* BABOK & EARS Syntax
+* *Verification:* Run Automated BDD Suite
+`;
+
+    const linearMarkdown = `## ${keyHeader}${summary}
+
+**Type:** Story | **Points:** ${storyPoints || 3}
+
+### 📝 User Story
+> ${userStory.replace(/\n/g, '\n> ')}
+
+### ✅ Acceptance Criteria
+\`\`\`gherkin
+${acceptanceCriteria}
+\`\`\`
+`;
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          jiraMarkup: jiraFormatted,
+          linearMarkdown: linearMarkdown
+        }, null, 2)
       }]
     };
   }

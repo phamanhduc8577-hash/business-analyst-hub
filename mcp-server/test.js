@@ -21,8 +21,8 @@ serverProcess.stdout.on('data', (data) => {
       const resp = JSON.parse(line);
 
       if (resp.id === 1) {
-        if (resp.result.tools && resp.result.tools.length >= 4) {
-          console.log('  ✅ PASS: tools/list returned 4 MCP tools');
+        if (resp.result.tools && resp.result.tools.length >= 5) {
+          console.log('  ✅ PASS: tools/list returned 5 MCP tools');
           testPassed++;
         } else {
           console.error('  ❌ FAIL: tools/list incomplete');
@@ -95,6 +95,35 @@ serverProcess.stdout.on('data', (data) => {
           testPassed++;
         } else {
           console.error('  ❌ FAIL: audit_prd_quality failed');
+          testFailed++;
+        }
+
+        // Test 5: Call export_to_jira_format
+        sendRpc({
+          jsonrpc: '2.0',
+          id: 5,
+          method: 'tools/call',
+          params: {
+            name: 'export_to_jira_format',
+            arguments: {
+              issueKey: 'PAY-101',
+              summary: 'Process VietQR Payment Notification',
+              userStory: 'As a customer, I want to scan VietQR so that my order is paid automatically.',
+              acceptanceCriteria: 'Given valid QR payment When IPN webhook arrives Then order is marked PAID.',
+              storyPoints: 5
+            }
+          }
+        });
+      }
+
+      if (resp.id === 5) {
+        const text = resp.result.content[0].text;
+        const parsed = JSON.parse(text);
+        if (parsed.jiraMarkup && parsed.linearMarkdown) {
+          console.log('  ✅ PASS: export_to_jira_format generated Jira & Linear payloads');
+          testPassed++;
+        } else {
+          console.error('  ❌ FAIL: export_to_jira_format failed');
           testFailed++;
         }
 
