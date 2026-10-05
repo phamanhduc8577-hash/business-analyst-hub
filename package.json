@@ -1,6 +1,6 @@
 {
   "name": "@phamanhduc/ba-hub",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Business Analyst Knowledge Hub & AI Skill Repository for Claude Code, Cursor, Windsurf, and Claude Desktop MCP",
   "type": "module",
   "bin": {

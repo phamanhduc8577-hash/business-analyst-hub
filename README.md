@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions"><img src="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions"><img src="https://github.com/phamanhduc8577-hash/business-analyst-hub/actions/workflows/deploy-docs.yml/badge.svg" alt="Docs Deploy" /></a>
-  <a href="https://www.npmjs.com/package/@phamanhduc/ba-hub"><img src="https://img.shields.io/badge/npm-v1.0.0-blue.svg" alt="npm package" /></a>
+  <a href="https://www.npmjs.com/package/@phamanhduc/ba-hub"><img src="https://img.shields.io/badge/npm-v1.1.0-blue.svg" alt="npm package" /></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
   <a href="https://phamanhduc8577-hash.github.io/business-analyst-hub/"><img src="https://img.shields.io/badge/Live_Docs-VitePress-646cff.svg" alt="Live Docs" /></a>
 </p>

@@ -1,6 +1,6 @@
 {
   "name": "business-analyst-hub-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Model Context Protocol (MCP) Server for AI Business Analyst Knowledge Hub",
   "main": "index.js",
   "type": "module",

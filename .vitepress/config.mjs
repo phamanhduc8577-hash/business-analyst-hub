@@ -62,7 +62,8 @@ export default withMermaid(defineConfig({
           { text: 'Healthcare Claims Adjudication', link: '/docs/05-domain-knowledge/insurance-healthcare/HEALTH-INSURANCE-CLAIMS-GUIDE' },
           { text: 'E-Commerce & Retail Systems', link: '/docs/05-domain-knowledge/ecommerce-retail/ECOMMERCE-RETAIL-SYSTEMS-GUIDE' },
           { text: 'Telecom BSS/OSS Systems', link: '/docs/05-domain-knowledge/telecom-saas-esg/TELECOM-SAAS-SYSTEMS-GUIDE' },
-          { text: 'Case Study: Vietnam Payments', link: '/docs/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS' }
+          { text: 'Case Study: Vietnam Payments (EN)', link: '/docs/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS' },
+          { text: 'Case Study: Vietnam Payments (VI)', link: '/docs/05-domain-knowledge/ecommerce-retail/CASE-STUDY-VIETNAM-PAYMENTS-VI' }
         ]
       },
       {
