@@ -74,7 +74,10 @@ Provides 5 standalone MCP tools for AI Agents and Claude Desktop:
     ├── 02-templates/                             # PRD, BRD, SRS/FRD, RTM & OpenAPI 3.0 Specs
     ├── 03-modeling-and-specs/                    # Mermaid.js & Gherkin BDD Standards
     ├── 04-data-dictionary/                       # Markdown Data Dictionary & Glossary Standards
-    └── 05-domain-knowledge/                      # Domain Markdown Guides:
+    └── 05-domain-knowledge/                      # Deep Domain Master Specifications:
+        ├── ai-systems-rag/                       # Enterprise AI RAG & Multi-Agent Systems
+        ├── crypto-web3-rwa/                      # RWA Tokenization (ERC-3643) & Proof of Reserve
+        ├── logistics-supply-chain/               # Smart WMS/TMS, Allocation (FEFO) & Cold Chain
         ├── payments-iso20022/                    # ISO 20022 Financial Messaging & SEPA Guide
         ├── banking-finance/                      # Commercial Lending & Credit Risk (LOS/LMS)
         ├── insurance-healthcare/                 # Healthcare Claims Adjudication (EDI 837/835)
@@ -90,6 +93,7 @@ Provides 5 standalone MCP tools for AI Agents and Claude Desktop:
 * **Event-Driven:** `WHEN <trigger>, THE SYSTEM SHALL <action>`
 * **State-Driven:** `WHILE <state>, THE SYSTEM SHALL <behavior>`
 * **Unwanted Behavior:** `IF <failure/error>, THEN THE SYSTEM SHALL <fallback>`
+* **Optional Feature:** `WHERE <feature/condition>, THE SYSTEM SHALL <behavior>`
 * **Ubiquitous:** `THE SYSTEM SHALL ALWAYS <invariant constraint>`
 
 ### 2. Acceptance Criteria (Gherkin BDD)

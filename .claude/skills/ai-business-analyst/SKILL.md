@@ -155,6 +155,9 @@ Feature: [Feature Name]
 
 ## 📂 Reference Standards in `docs/`
 
+- **Enterprise AI RAG & Multi-Agent:** `docs/05-domain-knowledge/ai-systems-rag/ENTERPRISE-RAG-MULTIAGENT-SPEC.md`
+- **RWA Tokenization (ERC-3643):** `docs/05-domain-knowledge/crypto-web3-rwa/RWA-TOKENIZATION-SPEC.md`
+- **Smart WMS/TMS & Cold Chain:** `docs/05-domain-knowledge/logistics-supply-chain/SMART-WMS-TMS-SPEC.md`
 - **PRD Template:** `docs/02-templates/prd/PRD-TEMPLATE.md`
 - **SRS / FRD Template:** `docs/02-templates/frd-srs/SRS-FRD-TEMPLATE.md`
 - **Mermaid Modeling Handbook:** `docs/03-modeling-and-specs/mermaid-diagrams/MERMAID-MODELING-GUIDE.md`
