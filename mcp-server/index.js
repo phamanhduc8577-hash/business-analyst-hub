@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
 import { fileURLToPath } from 'url';
+import { auditPrdQuality, validateEars } from './lib.js';
 
 /** Protocol-level error, returned as a JSON-RPC `error` object (not a tool result). */
 class RpcError extends Error {
@@ -85,7 +86,7 @@ const TOOLS = [
   },
   {
     name: 'audit_prd_quality',
-    description: 'Lints and scores a PRD/SRS requirements text based on BABOK standards: checks for ambiguous words, missing non-functional SLOs, missing edge cases, and EARS compliance.',
+    description: 'Lints and scores a PRD/SRS requirements text based on BABOK standards: ambiguous words, EARS compliance per requirement ID, traceability matrix coverage, BDD scenario depth, NFR/SLOs, data dictionary, and scope boundaries.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -141,96 +142,6 @@ function requireStringArgs(args, names) {
   }
 }
 
-function auditPrdQuality(text) {
-  const issues = [];
-  const strengths = [];
-  let score = 100;
-
-  // 1. Ambiguous buzzword detection
-  const vagueWords = [
-    { word: 'fast', suggestion: 'Define specific latency SLO (e.g., P99 < 200ms)' },
-    { word: 'quick', suggestion: 'Quantify exact response time or duration' },
-    { word: 'secure', suggestion: 'Specify encryption standards (e.g., AES-256, TLS 1.3, RBAC)' },
-    { word: 'user-friendly', suggestion: 'Define UX metrics (e.g., SUS score > 80, 0-training onboarding)' },
-    { word: 'high traffic', suggestion: 'Specify RPS/TPS targets (e.g., 5,000 RPS sustained, 20,000 RPS burst)' },
-    { word: 'handle errors', suggestion: 'Define explicit fallback status codes and user error messages' },
-    { word: 'scalable', suggestion: 'Specify horizontal scaling limits and resource thresholds' },
-    { word: 'as soon as possible', suggestion: 'Define explicit timeout and SLA bounds' },
-    { word: 'various', suggestion: 'Enumerate exact allowed types or options' },
-    { word: 'etc', suggestion: 'Provide complete enumeration instead of trailing etc.' }
-  ];
-
-  for (const { word, suggestion } of vagueWords) {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
-    const matches = text.match(regex);
-    if (matches) {
-      score -= matches.length * 4;
-      issues.push(`⚠️ Ambiguity detected: "${word}" (${matches.length}x) ➔ ${suggestion}`);
-    }
-  }
-
-  // 2. Check for EARS syntax
-  const hasEars = /WHEN\s+.+?,\s*THE\s+SYSTEM\s+SHALL/i.test(text) ||
-                  /WHILE\s+.+?,\s*THE\s+SYSTEM\s+SHALL/i.test(text) ||
-                  /WHERE\s+.+?,\s*THE\s+SYSTEM\s+SHALL/i.test(text) ||
-                  /IF\s+.+?,\s*THEN\s+THE\s+SYSTEM\s+SHALL/i.test(text) ||
-                  /THE\s+SYSTEM\s+SHALL\s+ALWAYS/i.test(text);
-  if (hasEars) {
-    strengths.push('✅ Uses standard EARS requirements syntax.');
-  } else {
-    score -= 15;
-    issues.push('❌ Missing EARS syntax (WHEN..., THE SYSTEM SHALL... / IF..., THEN THE SYSTEM SHALL...).');
-  }
-
-  // 3. Check for BDD Acceptance Criteria
-  const hasBdd = /Given\s+.+?When\s+.+?Then\s+/is.test(text);
-  if (hasBdd) {
-    strengths.push('✅ Contains structured Gherkin BDD scenarios.');
-  } else {
-    score -= 15;
-    issues.push('❌ Missing Given-When-Then BDD acceptance criteria.');
-  }
-
-  // 4. Check for Concurrency & Idempotency coverage
-  const hasIdempotency = /idempotenc/i.test(text) || /idempotent/i.test(text) || /race condition/i.test(text) || /concurr/i.test(text);
-  if (hasIdempotency) {
-    strengths.push('✅ Addresses concurrency, race conditions, or idempotency.');
-  } else {
-    score -= 10;
-    issues.push('⚠️ Missing Concurrency & Idempotency specifications (Idempotency-Key, double submit protection).');
-  }
-
-  // 5. Check for Visual Modeling
-  const hasMermaid = /```mermaid/i.test(text) || /sequenceDiagram/i.test(text) || /flowchart/i.test(text);
-  if (hasMermaid) {
-    strengths.push('✅ Contains Mermaid architectural/process visual diagrams.');
-  } else {
-    score -= 10;
-    issues.push('⚠️ No Mermaid visual models detected (flowchart TD or sequenceDiagram).');
-  }
-
-  // 6. Check for Non-Functional SLOs / Latency
-  const hasNfr = /latency/i.test(text) || /slo/i.test(text) || /sla/i.test(text) || /throughput/i.test(text) || /p99|p95/i.test(text);
-  if (hasNfr) {
-    strengths.push('✅ Defines quantifiable Non-Functional SLOs / Performance metrics.');
-  } else {
-    score -= 10;
-    issues.push('⚠️ Missing quantifiable NFRs / SLOs (P95/P99 latency, RPS, Availability SLA).');
-  }
-
-  const finalScore = Math.max(0, Math.min(100, score));
-  let rating = '🔴 Needs Significant Refinement (Junior/Draft)';
-  if (finalScore >= 85) rating = '🟢 Production-Ready (Principal BA Standard)';
-  else if (finalScore >= 70) rating = '🟡 Good Draft (Needs Edge-case hardening)';
-
-  return {
-    score: finalScore,
-    rating,
-    strengths,
-    issues: issues.length > 0 ? issues : ['No major issues detected. Document adheres to high-quality standards.']
-  };
-}
-
 function handleToolCall(name, args) {
   const rootDir = process.cwd();
 
@@ -255,28 +166,15 @@ function handleToolCall(name, args) {
 
   if (name === 'validate_ears_requirement') {
     requireStringArgs(args, ['requirementText']);
-    const text = args.requirementText.trim();
-    const isEvent = /^WHEN\s+.+?,\s*THE\s+SYSTEM\s+SHALL\s+.+/i.test(text);
-    const isState = /^WHILE\s+.+?,\s*THE\s+SYSTEM\s+SHALL\s+.+/i.test(text);
-    const isUnwanted = /^IF\s+.+?,\s*THEN\s+THE\s+SYSTEM\s+SHALL\s+.+/i.test(text);
-    const isOptional = /^WHERE\s+.+?,\s*THE\s+SYSTEM\s+SHALL\s+.+/i.test(text);
-    const isUbiquitous = /^THE\s+SYSTEM\s+SHALL\s+ALWAYS\s+.+/i.test(text);
-
-    const valid = isEvent || isState || isUnwanted || isOptional || isUbiquitous;
-    let patternType = 'Invalid / Non-EARS';
-    if (isEvent) patternType = 'Event-Driven (WHEN..., THE SYSTEM SHALL...)';
-    if (isState) patternType = 'State-Driven (WHILE..., THE SYSTEM SHALL...)';
-    if (isUnwanted) patternType = 'Unwanted Behavior (IF..., THEN THE SYSTEM SHALL...)';
-    if (isOptional) patternType = 'Optional Feature (WHERE..., THE SYSTEM SHALL...)';
-    if (isUbiquitous) patternType = 'Ubiquitous Invariant (THE SYSTEM SHALL ALWAYS...)';
+    const { isValidEARS, patternType, recommendation } = validateEars(args.requirementText);
 
     return {
       content: [{
         type: 'text',
         text: JSON.stringify({
-          isValidEARS: valid,
+          isValidEARS,
           patternType,
-          recommendation: valid ? 'Conforms to BABOK & EARS standard.' : 'Refactor to: WHEN <trigger>, THE SYSTEM SHALL <action> OR IF <error>, THEN THE SYSTEM SHALL <fallback>.'
+          recommendation
         }, null, 2)
       }]
     };

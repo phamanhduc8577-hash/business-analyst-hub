@@ -8,12 +8,19 @@ info:
   contact:
     name: Lead Business Analyst
     email: ba-team@company.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
 
 servers:
   - url: https://api.production.example.com/v1
     description: Production Server
   - url: https://api.staging.example.com/v1
     description: Staging / Sandbox Server
+
+# Mặc định mọi endpoint yêu cầu JWT; endpoint nào khác phải khai báo security riêng.
+security:
+  - bearerAuth: []
 
 paths:
   /orders/checkout:
@@ -51,6 +58,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Thiếu hoặc sai JWT access token.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Xung đột dữ liệu - Hết hàng trong kho hoặc giá sản phẩm đã thay đổi.
           content:
@@ -64,7 +77,10 @@ paths:
       description: >-
         Endpoint nhận callback bất đồng bộ từ Cổng thanh toán (VNPAY / MoMo / Ngân hàng).
         Bắt buộc kiểm tra chữ ký số HMAC-SHA512 trước khi xử lý.
+        Không dùng JWT: tính xác thực được đảm bảo bằng trường `secure_hash` (HMAC-SHA512 với secret chia sẻ)
+        và danh sách IP được phép của cổng thanh toán.
       operationId: handlePaymentIpn
+      security: []
       requestBody:
         required: true
         content:
@@ -72,6 +88,14 @@ paths:
             schema:
               $ref: '#/components/schemas/IpnCallbackPayload'
       responses:
+        '400':
+          description: >-
+            Body không phải JSON hợp lệ. Lưu ý: sai chữ ký hoặc sai số tiền vẫn trả HTTP 200
+            với RspCode "97" / "04" theo hợp đồng của cổng thanh toán.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '200':
           description: Xác nhận đã nhận và xử lý IPN thành công.
           content:
@@ -87,6 +111,11 @@ paths:
                     example: "Confirm Success"
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     CheckoutRequest:
       type: object

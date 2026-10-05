@@ -43,9 +43,13 @@
     "docs:build": "vitepress build .",
     "docs:preview": "vitepress preview .",
     "test:mcp": "node mcp-server/test.js",
-    "test:cli": "node bin/cli.js --help"
+    "test:cli": "node bin/cli.js --help",
+    "lint:specs": "node scripts/lint-specs.mjs",
+    "test": "npm run test:mcp && npm run lint:specs"
   },
   "devDependencies": {
-    "vitepress": "^1.6.4"
+    "mermaid": "11.17.2",
+    "vitepress": "^1.6.4",
+    "vitepress-plugin-mermaid": "2.0.17"
   }
 }

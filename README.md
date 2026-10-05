@@ -43,7 +43,7 @@ Provides 5 standalone MCP tools for AI Agents and Claude Desktop:
 1. `get_ba_template`: Fetch production-ready PRD, SRS, BRD, RTM, and domain guides.
 2. `validate_ears_requirement`: Validate EARS syntax (*Event, State, Unwanted, Optional, Ubiquitous*).
 3. `generate_gherkin_scenarios`: Generate Happy Path, Negative Path, and Concurrency test scenarios.
-4. `audit_prd_quality`: Lints PRDs for vague buzzwords, missing SLOs, and edge cases.
+4. `audit_prd_quality`: Scores PRDs/SRSs for vague wording, EARS compliance per requirement, RTM coverage, BDD depth, SLOs, data dictionary, and scope boundaries.
 5. `export_to_jira_format`: Convert User Stories into Jira markup & Linear markdown.
 
 ### Add to Claude Desktop (`claude_desktop_config.json`):
@@ -117,4 +117,4 @@ Scenario: [Happy Path / Concurrency Edge Case]
 
 Contributions are warmly welcomed! Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on code of conduct and submitting pull requests.
 
-Distributed under the **MIT License**. See [LICENSE](./LICENSE) for more information.
+Distributed under the **MIT License**. See [LICENSE](https://github.com/phamanhduc8577-hash/business-analyst-hub/blob/master/LICENSE) for more information.

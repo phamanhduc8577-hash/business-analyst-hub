@@ -6,9 +6,12 @@ on:
   pull_request:
     branches: [ master, main ]
 
+permissions:
+  contents: read
+
 jobs:
-  validate-markdown-and-diagrams:
-    name: Validate Markdown & Mermaid Diagrams
+  validate:
+    name: Test, Lint Specs & Build Docs
     runs-on: ubuntu-latest
 
     steps:
@@ -19,17 +22,33 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
-      - name: Validate Markdown Files & Dead Links
-        run: |
-          echo "Checking Markdown integrity..."
-          find . -name "*.md" -type f | xargs -I {} echo "Validating: {}"
+      - name: Install Dependencies
+        run: npm ci
 
-      - name: Verify OpenAPI 3.0 YAML Syntax
-        run: |
-          npx @redocly/cli lint docs/02-templates/frd-srs/openapi-spec-template.yaml || true
-          echo "OpenAPI Spec Verified successfully."
+      - name: MCP Server Tests
+        run: npm run test:mcp
 
-      - name: Build Summary
+      - name: Lint Specifications (EARS, traceability, BDD coverage, audit score)
+        run: npm run lint:specs
+
+      - name: CLI Smoke Test
+        run: npm run test:cli
+
+      - name: Build Documentation (fails on dead links)
+        run: npm run docs:build
+
+      - name: Validate Mermaid Diagrams
         run: |
-          echo "✅ Knowledge Hub Structure & Validation Passed!"
+          set -euo pipefail
+          out="$RUNNER_TEMP/mermaid"
+          mkdir -p "$out"
+          mapfile -t files < <(grep -rl --include='*.md' '```mermaid' docs)
+          for f in "${files[@]}"; do
+            echo "Validating $f"
+            npx -y @mermaid-js/mermaid-cli@11.17.0 -q -p .github/mermaid-puppeteer.json -i "$f" -o "$out/$(basename "$f")"
+          done
+
+      - name: Lint OpenAPI Template
+        run: npx -y @redocly/cli@2.57.0 lint docs/02-templates/frd-srs/openapi-spec-template.yaml

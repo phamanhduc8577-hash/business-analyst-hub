@@ -52,9 +52,14 @@ node bin/cli.js --help
 # 2. Test MCP Server (Stdio JSON-RPC)
 npm run test:mcp
 
-# 3. Build & Validate Documentation Site
+# 3. Lint specifications (EARS, Risk ➔ REQ ➔ RTM ➔ TC traceability, BDD coverage)
+npm run lint:specs
+
+# 4. Build & Validate Documentation Site (fails on dead links)
 npm run docs:build
 ```
+
+Master specifications (any doc with a `10-Point ... Risk` section) must pass `npm run lint:specs`: every requirement is valid EARS with a matching pattern label, every risk row links to an existing REQ-ID, the RTM covers every REQ, and every Gherkin scenario carries a `@TC-...` tag listed in the RTM.
 
 ---
 

@@ -132,13 +132,19 @@ async function run() {
     check(r.isValidEARS === expectedValid && r.patternType.includes(expectedPattern), `validate_ears_requirement → ${expectedPattern}`, JSON.stringify(r));
   }
 
-  // 5. audit_prd_quality: strong document scores high, vague document scores low
-  const strongDoc = 'WHEN user clicks, THE SYSTEM SHALL send pacs.008. Given valid data When send Then ok with idempotency. P99 latency < 100ms. ```mermaid\nflowchart TD\nA-->B\n```';
+  // 5. audit_prd_quality: a full master spec is production-ready; a keyword-stuffed one-liner and a vague text are not
+  const masterSpec = toolText(await callTool('get_ba_template', { templateType: 'enterprise_rag' }));
+  const full = toolJson(await callTool('audit_prd_quality', { documentText: masterSpec }));
+  check(full.score >= 85, 'audit_prd_quality rates the Enterprise RAG master spec ≥ 85', `score ${full.score}: ${full.issues.join(' | ')}`);
+  const keywordOnlyDoc = 'WHEN user clicks, THE SYSTEM SHALL send pacs.008. Given valid data When send Then ok with idempotency. P99 latency < 100ms. ```mermaid\nflowchart TD\nA-->B\n```';
+  const shallow = toolJson(await callTool('audit_prd_quality', { documentText: keywordOnlyDoc }));
+  check(shallow.score < 85 && shallow.issues.some((i) => /Traceability/.test(i)), 'audit_prd_quality does not rate a keyword-only one-liner production-ready', `score ${shallow.score}`);
   const weakDoc = 'System must be fast and secure and scalable, supporting various channels etc.';
-  const strong = toolJson(await callTool('audit_prd_quality', { documentText: strongDoc }));
-  check(strong.score >= 85, 'audit_prd_quality rates a complete document ≥ 85', `score ${strong.score}`);
   const weak = toolJson(await callTool('audit_prd_quality', { documentText: weakDoc }));
   check(weak.score < 70 && weak.issues.length >= 5, 'audit_prd_quality rates a vague document < 70', `score ${weak.score}`);
+  const nonEarsTable = '| **REQ-X-01** | *Event-Driven* | `The system should be quick` |\n## Traceability\n| BG | REQ-X-01 |';
+  const nonEars = toolJson(await callTool('audit_prd_quality', { documentText: nonEarsTable }));
+  check(nonEars.issues.some((i) => i.includes('REQ-X-01') && /not in EARS/.test(i)), 'audit_prd_quality flags identified requirements that are not EARS');
 
   // 6. generate_gherkin_scenarios
   const gherkin = toolText(await callTool('generate_gherkin_scenarios', { featureName: 'Refund Request' }));

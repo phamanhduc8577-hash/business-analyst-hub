@@ -1,10 +1,15 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+// withMermaid renders ```mermaid fenced blocks as diagrams on the docs site.
+export default withMermaid(defineConfig({
   title: "Business Analyst Knowledge Hub",
   description: "Curated Knowledge Base, Templates & AI Skill for Business Analysts & Engineering Teams",
   base: "/business-analyst-hub/",
-  ignoreDeadLinks: true,
+  // Internal planning documents are not published.
+  srcExclude: ['plans/**'],
+  // Fail the build on broken internal links (enforced in CI).
+  ignoreDeadLinks: false,
 
   themeConfig: {
     nav: [
@@ -77,4 +82,4 @@ export default defineConfig({
       copyright: 'Copyright © 2026 Business Analyst Knowledge Hub'
     }
   }
-})
+}))

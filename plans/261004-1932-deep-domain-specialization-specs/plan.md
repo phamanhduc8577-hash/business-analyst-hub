@@ -80,18 +80,18 @@ Authoring rules:
 
 ## Success Criteria
 
-- [ ] 3 master domain specifications created under `docs/05-domain-knowledge/`, each complying with the Spec Authoring Standard.
-- [ ] Gates G1–G7 pass.
-- [ ] `get_ba_template` resolves `enterprise_rag`, `rwa_tokenization`, `smart_wms_tms` (present in both `inputSchema.enum` and `TEMPLATE_MAP`).
-- [ ] New specs appear in the VitePress sidebar, README repository tree, and SKILL.md "Reference Standards".
+- [x] 3 master domain specifications created under `docs/05-domain-knowledge/`, each complying with the Spec Authoring Standard.
+- [x] Gates G1–G7 pass (now automated: `npm test`, `npm run docs:build`, CI Mermaid + OpenAPI steps).
+- [x] `get_ba_template` resolves `enterprise_rag`, `rwa_tokenization`, `smart_wms_tms` (present in both `inputSchema.enum` and `TEMPLATE_MAP`).
+- [x] New specs appear in the VitePress sidebar, README repository tree, and SKILL.md "Reference Standards".
 
 ## Risks
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Mermaid diagrams are not rendered on the docs site — VitePress has no Mermaid support by default and `vitepress-plugin-mermaid` is not installed | "Render cleanly" cannot be verified visually; readers see raw code blocks | G3 validates syntax offline; adding the plugin is an Open Question |
-| `ignoreDeadLinks: true` in config makes the build pass regardless of broken links | False "zero dead links" claim | G5 temporary strict build |
-| CI (`ci.yml`) only echoes file names; it does not validate Markdown, links, or Mermaid | Regressions not caught on PR | Out of scope; noted for a follow-up plan |
+| Mermaid diagrams are not rendered on the docs site — VitePress has no Mermaid support by default and `vitepress-plugin-mermaid` is not installed | "Render cleanly" cannot be verified visually; readers see raw code blocks | **Resolved:** `vitepress-plugin-mermaid@2.0.17` + `mermaid@11.17.2` installed; headless-browser check rendered 14/14 spec diagrams |
+| `ignoreDeadLinks: true` in config makes the build pass regardless of broken links | False "zero dead links" claim | **Resolved:** `ignoreDeadLinks: false` permanently; README `./LICENSE` link fixed |
+| CI (`ci.yml`) only echoes file names; it does not validate Markdown, links, or Mermaid | Regressions not caught on PR | **Resolved:** CI runs MCP tests, `lint:specs`, CLI smoke test, strict docs build, Mermaid CLI on all docs, and Redocly lint (no longer masked by an `or true` fallback) |
 | Fast-moving regulation (EU AI Act Digital Omnibus, Vietnam crypto pilot, MiCA) | Outdated/incorrect compliance statements | Cite identifier + effective date; verify at authoring time |
 | Phase 3 scope (WMS + TMS + IoT + AGV) too broad for one spec | Shallow coverage | Explicit Non-Goals defined in Phase 3 |
 | Parallel phases editing shared files | Merge conflicts | Shared-file edits centralized in Phase 4 |
@@ -112,5 +112,12 @@ Authoring rules:
 - Replaced unverifiable criteria ("zero dead links", "render cleanly") with executable gates.
 - Corrected domain inaccuracies in each phase (see each phase's "Review Corrections" section).
 - Re-estimated effort 12h ➔ 17h.
+
+**2026-10-05 post-implementation review** — phases 1–4 were implemented, then hardened in three fix groups:
+- **Group 1 (`7069fa2`):** Risk ➔ REQ links were positional (risk N ➔ REQ-N) in all 3 specs — relinked and added the missing REQs; RTM now traces every REQ and every scenario carries a `@TC-*` tag; RAG ACL default changed from `['PUBLIC']` to deny-by-default; RWA "12 block confirmations" replaced by finality-based indexing and impossible "revert + emit event" fixed; MCP server now returns JSON-RPC errors / `isError` results instead of hanging; test suite rewritten (no soft passes); VitePress home page and skill page added.
+- **Group 2 (`de784c6`):** domain inconsistencies (state machines, token budgets, timelock vs emergency actions, redemption lifecycle, freeze excursions, sensor gaps, COD net reconciliation, ER cardinality), Vietnam PDP Law 91/2025/QH15, PII classification, clickable cross-references.
+- **Group 3:** Mermaid rendering on the site, `plans/**` excluded from the site, strict dead-link builds, `audit_prd_quality` structural checks (REQ IDs, per-REQ EARS, RTM coverage, scenario depth, data dictionary, scope) shared with the new `npm run lint:specs`, real CI, OpenAPI template given security schemes so Redocly lint passes.
+- **Open Questions:** Q1 done (WHERE pattern), Q2 done (plugin), Q3 changed to a committed `lint:specs`, Q5 done. Q4 (version bump) remains with the release process.
+- **Final gate results:** 62 REQs in the 3 master specs valid EARS with matching labels; audit 100/100/100; 50 tagged scenarios; 34/34 Mermaid diagrams across `docs/` parse; 14/14 spec diagrams render in a headless browser; strict docs build passes; MCP tests 47/47.
 
 <!-- slug: deep-domain-specialization-specs -->
