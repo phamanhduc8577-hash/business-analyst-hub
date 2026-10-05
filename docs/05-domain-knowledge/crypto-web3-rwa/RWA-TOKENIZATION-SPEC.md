@@ -2,7 +2,9 @@
 
 > **Purpose:** Production-grade technical specification for institutional Real-World Asset (RWA) tokenization, permissioned compliance registries (ERC-3643 / T-REX), oracle-driven Proof of Reserve (PoR), atomic DvP settlement, and finality-aware on-chain/off-chain reconciliation.
 >
-> 📜 **Referenced Standards:** ERC-3643 (Permissioned Token Standard), ERC-1400 (Security Token Standard), EU MiCA (Regulation (EU) 2023/1114, effective June 2024 / Dec 2024), US SEC Regulation D (506(c)) & Regulation S, FINMA Technical Guidelines for Asset Tokenization (2023), Chainlink Proof of Reserve Architecture.
+> 📜 **Referenced Standards:** ERC-3643 (T-REX permissioned token standard, final EIP), ONCHAINID (ERC-734 / ERC-735), ERC-1400 (draft security-token proposal, never finalized — listed for comparison only), EU MiFID II (Directive 2014/65/EU) and DLT Pilot Regime (Regulation (EU) 2022/858) — tokenized securities are financial instruments and are excluded from MiCA (Regulation (EU) 2023/1114), US SEC Regulation D (506(c)) & Regulation S, FINMA Technical Guidelines for Asset Tokenization (2023), Vietnam Resolution 05/2025/NQ-CP (crypto-asset pilot, effective 9 Sep 2025 — excludes security tokens), Vietnam Law on Personal Data Protection No. 91/2025/QH15 (effective 1 Jan 2026), Chainlink Proof of Reserve Architecture.
+>
+> ⚖️ *Regulatory references are informational, not legal advice; re-verify applicability and dates per offering.*
 
 ---
 
@@ -14,8 +16,8 @@ Traditional private credit, real estate syndication, and sovereign debt instrume
 ### 1.2 Target Business KPIs
 * **Settlement Velocity:** On-chain execution (block inclusion) $\le 15\text{ seconds}$; the off-chain register treats settlement as final at chain finality (Ethereum L1 $\approx 12.8\text{ minutes}$), replacing T+2 traditional clearing.
 * **Compliance Enforcement Accuracy:** 100% automated enforcement of transfer restrictions with zero unauthorized transactions.
-* **Proof of Reserve Latency:** Collateral verification freshness $\le 60\text{ seconds}$ from physical custodian attestations.
-* **Reconciliation Discrepancy Rate:** $0.0000\%$ variance between on-chain minted supply and custodian reserve balances.
+* **Proof of Reserve Freshness:** Collateral attestation age $\le 3,600\text{ seconds}$ (aligned with the oracle heartbeat in §6).
+* **Supply Integrity:** 0 token-unit variance between on-chain total supply and the off-chain register of holders, and reserve coverage ratio $\ge 100\%$ at every attestation (reserve value may fluctuate with NAV; supply may not).
 
 ### 1.3 Scope Boundaries
 * **In-Scope (MVP):**
@@ -31,6 +33,12 @@ Traditional private credit, real estate syndication, and sovereign debt instrume
   - Retail fiat on-ramp banking integration (covered via reference to payments guide).
   - Anonymous peer-to-peer transfers bypassing identity registries.
 
+### 1.4 Jurisdiction & Asset Class Declaration
+* **Worked example asset:** `US-TREASURY-01` — tokenized units of a short-term US Treasury fund, 1 token = 1 USD of NAV at issuance, offered only to accredited / professional investors.
+* **Target regimes:** United States (Regulation D 506(c) for US accredited investors, Regulation S for offshore investors) and the European Union (MiFID II; secondary trading on a DLT market infrastructure under the DLT Pilot Regime). The token is a **financial instrument**, so MiCA does not apply.
+* **Vietnam:** out of scope. Resolution 05/2025/NQ-CP pilots crypto assets but explicitly excludes security tokens; any offering to Vietnamese investors requires a separate legal opinion.
+* **Personal data:** identity documents and KYC results stay off-chain with the KYC provider; on-chain ONCHAINID claims contain only issuer signatures and claim-data hashes. A wallet address linked to an identity is personal data under GDPR and Vietnam PDP Law 91/2025/QH15.
+
 ---
 
 ## 2. 10-Point Technical Risk & Failure Mode Audit
@@ -43,10 +51,10 @@ Traditional private credit, real estate syndication, and sovereign debt instrume
 | **4. Consistency** | Blockchain reorganization replaces a block after the backend observed a token issuance or transfer. | Finality rule instead of a fixed confirmation count: events stay `PENDING_FINALITY` and never mutate the authoritative cap table until their block is finalized (Ethereum L1 `finalized` tag ≈ 2 epochs; L2 `finalized` tag = batch included in a finalized L1 block). Orphaned provisional records are discarded and re-indexed. A reorg below the finalized block is a consensus incident: pause the contract and reconcile manually. | `REQ-RWA-07`, `REQ-RWA-08` |
 | **5. State Machine** | Frozen or quarantined wallet attempts to execute token transfer or dividend claim. | ERC-3643 `canTransfer()` compliance check plus identity registry and freeze status before execution; global pause blocks all state-changing calls. | `REQ-RWA-03`, `REQ-RWA-05` |
 | **6. Rate Limiting** | Automated trading bot floods RPC node with transfer verification queries. | Distributed API Gateway rate limiting enforcing 100 requests per minute per IP address and API key. | `REQ-RWA-15` |
-| **7. Security & RBAC** | Compromised admin private key triggers unauthorized token minting or force transfer. | Multi-party computation (MPC) / multi-signature vault requiring 3-of-5 quorum with 24-hour timelock for administrative actions. | `REQ-RWA-06` |
+| **7. Security & RBAC** | Compromised admin private key triggers unauthorized token minting, force transfer, or a malicious contract upgrade. | MPC / multi-signature vault requiring a 3-of-5 quorum. Emergency actions (pause, wallet freeze, forced legal transfer) execute immediately on quorum so they can meet the 15-minute SLA; contract upgrades, compliance-module changes, and trusted-issuer changes wait behind a 24-hour timelock that the quorum can cancel. | `REQ-RWA-06` |
 | **8. Audit Trail** | Court order requires full lineage of token transfers between entities across 3 years. | Synchronized dual-ledger: finalized on-chain event logs indexed into an append-only relational audit store with zero truncation. | `REQ-RWA-17` |
 | **9. Degradation** | Primary Chainlink PoR oracle feed halts or reports stale reserve figures. | Heartbeat watchdog detecting oracle staleness $> 3,600\text{ seconds}$, halting minting operations automatically. | `REQ-RWA-09` |
-| **10. Compliance** | Investor country of residence changes to sanctioned jurisdiction post-issuance. | Dynamic identity claim revocation in OnchainID registry; token transfer hook blocks subsequent transfers immediately. | `REQ-RWA-10`, `REQ-RWA-02` |
+| **10. Compliance** | Investor country of residence changes to sanctioned jurisdiction post-issuance. | Dynamic identity claim revocation in OnchainID registry; token transfer hook blocks subsequent transfers immediately. Personal data kept off-chain (§1.4). | `REQ-RWA-10`, `REQ-RWA-02` |
 
 ---
 
@@ -115,23 +123,55 @@ sequenceDiagram
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT_PENDING_AUDIT: Asset Documentation Submitted
-    DRAFT_PENDING_AUDIT --> ATTESTED_IN_CUSTODY: Legal Custody & Proof of Reserve Confirmed
-    
+    DRAFT_PENDING_AUDIT --> REJECTED: Due Diligence Failed
+    DRAFT_PENDING_AUDIT --> ATTESTED_IN_CUSTODY: Legal Custody and Proof of Reserve Confirmed
+
     ATTESTED_IN_CUSTODY --> TOKENIZED_ACTIVE: Multi-Sig Quorum Mints Tokens
-    
-    TOKENIZED_ACTIVE --> PAUSED: Emergency Security Pause (Admin Multi-Sig)
+
+    TOKENIZED_ACTIVE --> PAUSED: Emergency Pause (3-of-5 Quorum, No Timelock)
     PAUSED --> TOKENIZED_ACTIVE: Unpause Executed
-    
-    TOKENIZED_ACTIVE --> FROZEN_PARTIAL: Specific Wallet Blacklisted / Court Order
-    FROZEN_PARTIAL --> TOKENIZED_ACTIVE: Freeze Lifted
-    
-    TOKENIZED_ACTIVE --> REDEMPTION_PENDING: Investor Requests Physical Asset Claim
-    REDEMPTION_PENDING --> BURNED: Asset Distributed, Tokens Burned
-    
-    BURNED --> [*]
+
+    TOKENIZED_ACTIVE --> WIND_DOWN: Issuer Announces Maturity or Full Redemption
+    WIND_DOWN --> FULLY_REDEEMED: Total Supply Reaches Zero
+
+    REJECTED --> [*]
+    FULLY_REDEEMED --> [*]
 ```
 
-### 3.4 Domain Entity Architecture (ER Diagram)
+> Wallet freezes and individual redemptions do **not** change the asset state; they follow the holder and redemption-request lifecycles below.
+
+### 3.4 Holder Wallet Status (State Diagram)
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING_KYC: Investor Onboarding Started
+    PENDING_KYC --> VERIFIED: Identity Registered with Valid Claims
+    PENDING_KYC --> REJECTED_KYC: KYC Failed
+    VERIFIED --> FROZEN: Court Order or Sanctions Hit (3-of-5 Quorum)
+    FROZEN --> VERIFIED: Freeze Lifted
+    VERIFIED --> CLAIM_EXPIRED: KYC or Accreditation Claim Expired
+    CLAIM_EXPIRED --> VERIFIED: Claim Renewed by Trusted Issuer
+    FROZEN --> RECOVERED: Forced Transfer to Replacement Wallet
+    REJECTED_KYC --> [*]
+    RECOVERED --> [*]
+```
+
+### 3.5 Redemption Request Lifecycle (State Diagram)
+
+```mermaid
+stateDiagram-v2
+    [*] --> REQUESTED: Investor Submits Redemption
+    REQUESTED --> TOKENS_LOCKED: Tokens Moved to Redemption Escrow
+    REQUESTED --> REJECTED_REQUEST: Wallet Not VERIFIED or Contract PAUSED
+    TOKENS_LOCKED --> PAYOUT_CONFIRMED: Custodian Confirms Off-Chain Payout
+    TOKENS_LOCKED --> REVERSED: Payout Not Confirmed Within 48 h (Tokens Unlocked)
+    PAYOUT_CONFIRMED --> BURNED: Escrowed Tokens Burned
+    BURNED --> [*]
+    REVERSED --> [*]
+    REJECTED_REQUEST --> [*]
+```
+
+### 3.6 Domain Entity Architecture (ER Diagram)
 
 ```mermaid
 erDiagram
@@ -141,6 +181,10 @@ erDiagram
     TOKEN_CONTRACT ||--o{ TRANSFER_TRANSACTION : executes
     ASSET_VAULT ||--o{ PROOF_OF_RESERVE_RECORD : validates
     TOKEN_CONTRACT ||--o{ DIVIDEND_DISTRIBUTION : schedules
+    DIVIDEND_DISTRIBUTION ||--o{ DISTRIBUTION_PAYOUT : allocates
+    INVESTOR_IDENTITY ||--o{ DISTRIBUTION_PAYOUT : receives
+    INVESTOR_IDENTITY ||--o{ REDEMPTION_REQUEST : submits
+    TOKEN_CONTRACT ||--o{ REDEMPTION_REQUEST : escrows
 
     ASSET_VAULT {
         string vault_id PK
@@ -164,7 +208,7 @@ erDiagram
     INVESTOR_IDENTITY {
         string onchain_id_addr PK
         string wallet_address
-        string country_code
+        int country_code
         boolean is_frozen
         timestamp kyc_expiration
     }
@@ -197,6 +241,35 @@ erDiagram
         string oracle_round_id
         timestamp timestamp
     }
+
+    DIVIDEND_DISTRIBUTION {
+        string distribution_id PK
+        string contract_address FK
+        int record_block_height
+        decimal total_amount_usd
+        decimal withholding_rate
+        string status
+        timestamp unclaimed_expiry_at
+    }
+
+    DISTRIBUTION_PAYOUT {
+        string payout_id PK
+        string distribution_id FK
+        string onchain_id_addr FK
+        decimal gross_amount_usd
+        decimal withheld_amount_usd
+        string payout_status
+    }
+
+    REDEMPTION_REQUEST {
+        string request_id PK
+        string onchain_id_addr FK
+        string contract_address FK
+        decimal token_amount
+        string status
+        timestamp tokens_locked_at
+        timestamp payout_confirmed_at
+    }
 ```
 
 ---
@@ -208,20 +281,23 @@ erDiagram
 | **REQ-RWA-01** | *Event-Driven* | `WHEN a token minting request is initiated, THE SYSTEM SHALL query the Chainlink Proof of Reserve oracle and verify that attested reserves exceed or equal the new circulating supply before generating smart contract execution bytes.` |
 | **REQ-RWA-02** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS verify that both sender and recipient wallets possess valid unexpired OnchainID claims signed by trusted KYC issuers prior to authorizing any secondary token transfer.` |
 | **REQ-RWA-03** | *Unwanted Behavior* | `IF an investor wallet address is marked as frozen or fails identity registry validation, THEN THE SYSTEM SHALL revert the token transfer with the custom error TransferNotCompliant carrying a project-defined reason code, leave all balances unchanged, and record the rejection with its reason code in the off-chain compliance log by decoding the revert data of the failed transaction.` |
-| **REQ-RWA-04** | *Event-Driven* | `WHEN a token redemption request is finalized, THE SYSTEM SHALL execute an atomic smart contract burn of the requested token amount, reduce total supply counter, and dispatch payout notification to custodian within 60 seconds.` |
+| **REQ-RWA-04** | *Event-Driven* | `WHEN the custodian confirms the off-chain payout for a redemption request in TOKENS_LOCKED state, THE SYSTEM SHALL burn the escrowed tokens in a single transaction, reduce total supply by the same amount, and set the request status to BURNED within 60 seconds.` |
 | **REQ-RWA-05** | *State-Driven* | `WHILE the token contract is in PAUSED state, THE SYSTEM SHALL reject all incoming mint, transfer, and redemption transactions with execution revert.` |
-| **REQ-RWA-06** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS require a minimum multi-signature quorum of 3 out of 5 designated hardware-secured keys to execute emergency administrative actions including contract pause and forced legal transfers.` |
+| **REQ-RWA-06** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS require a quorum of 3 out of 5 designated hardware-secured keys for administrative actions, executing contract pause, wallet freeze, and forced legal transfer immediately upon quorum, and delaying contract upgrades, compliance module changes, and trusted issuer changes by a 24-hour timelock that the quorum can cancel.` |
 | **REQ-RWA-07** | *Event-Driven* | `WHEN the blockchain indexer detects an on-chain token event, THE SYSTEM SHALL record it with finality_status PENDING_FINALITY and apply it to the authoritative off-chain cap table only after its block number is less than or equal to the chain's finalized block (Ethereum L1 finalized tag, or for an L2 the finalized tag meaning its batch is included in a finalized L1 block).` |
 | **REQ-RWA-08** | *Unwanted Behavior* | `IF the indexer detects that a previously observed block hash is no longer part of the canonical chain, THEN THE SYSTEM SHALL mark all PENDING_FINALITY records from the orphaned blocks as ORPHANED, re-index events from the common ancestor block within 45 seconds, and raise a HIGH severity alert when the reorganization depth exceeds 3 blocks.` |
 | **REQ-RWA-09** | *State-Driven* | `WHILE the Proof of Reserve oracle heartbeat timestamp exceeds 3,600 seconds without fresh attestation, THE SYSTEM SHALL suspend automated primary token issuance and alert the compliance operations desk.` |
 | **REQ-RWA-10** | *Event-Driven* | `WHEN a trusted KYC provider revokes an investor identity claim, THE SYSTEM SHALL invoke the identity registry smart contract to synchronize revocation status within 300 seconds.` |
 | **REQ-RWA-11** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS persist an immutable cryptographic hash of physical legal custodian vault deposit receipts in smart contract state metadata.` |
-| **REQ-RWA-12** | *State-Driven* | `WHILE calculating pro-rata dividend distribution allocations, THE SYSTEM SHALL execute a historical snapshot of token holder balances at the exact target block height to prevent flash-loan arbitrage.` |
+| **REQ-RWA-12** | *Event-Driven* | `WHEN a distribution is declared with a record block height, THE SYSTEM SHALL calculate pro-rata allocations from holder balances snapshotted at that block height and ignore every transfer finalized after it.` |
 | **REQ-RWA-13** | *Unwanted Behavior* | `IF a custodian deposit notification arrives with a custodian deposit reference that has already been processed, THEN THE SYSTEM SHALL return the original processing result and SHALL NOT create a second mint request.` |
 | **REQ-RWA-14** | *Unwanted Behavior* | `IF a platform-submitted operator transaction is not included in a block within 120 seconds, THEN THE SYSTEM SHALL resubmit it with the same nonce and a maxPriorityFeePerGas raised by at least 12.5 percent, up to 3 replacements, and alert operations when it remains pending.` |
 | **REQ-RWA-15** | *Event-Driven* | `WHEN a client exceeds 100 requests per minute per API key on the transfer verification API, THE SYSTEM SHALL reject further requests with HTTP 429 and a Retry-After header until the rate window resets.` |
 | **REQ-RWA-16** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS serialize transaction submission for each operator wallet through a single nonce manager so that no two pending transactions share a nonce and no nonce is skipped.` |
 | **REQ-RWA-17** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS index every finalized token contract event into an append-only audit store keyed by chain ID, transaction hash, and log index, retained for at least 7 years or the longer period required by the declared jurisdiction.` |
+| **REQ-RWA-18** | *Event-Driven* | `WHEN a VERIFIED investor submits a redemption request while the contract is not PAUSED, THE SYSTEM SHALL move the requested tokens into the redemption escrow, set the request status to TOKENS_LOCKED, and send a payout instruction to the custodian within 60 seconds.` |
+| **REQ-RWA-19** | *Unwanted Behavior* | `IF the custodian has not confirmed the off-chain payout within 48 hours after a redemption request entered TOKENS_LOCKED, THEN THE SYSTEM SHALL return the escrowed tokens to the investor wallet, set the request status to REVERSED, and alert the transfer agent.` |
+| **REQ-RWA-20** | *Ubiquitous* | `THE SYSTEM SHALL ALWAYS key each distribution payout by distribution ID and holder identity so that re-running a distribution job never pays the same holder twice for the same distribution.` |
 
 > **EVM note:** a reverted transaction discards every event it emitted, so rejections can never be observed as on-chain events. They surface as revert data (custom error + reason code) and must be captured off-chain (`REQ-RWA-03`). Reason codes such as `ERC3643_WALLET_FROZEN` are project-defined; the ERC-3643 reference implementation only returns `false` from `canTransfer()`.
 
@@ -310,12 +386,15 @@ Feature: ERC-3643 Compliant Real-World Asset (RWA) Tokenization
     And Alert the compliance operations desk
 
   @TC-RWA-08
-  Scenario: Finalized redemption burns tokens atomically and notifies the custodian
-    Given Investor "Alice" holds 10,000 tokens and her redemption request for 4,000 tokens is finalized by the transfer agent
-    When The redemption is executed
-    Then The token contract shall burn 4,000 tokens from "Alice" in a single transaction
+  Scenario: Redemption locks tokens, then burns them only after payout confirmation
+    Given Investor "Alice" is VERIFIED and holds 10,000 tokens
+    When "Alice" submits a redemption request for 4,000 tokens
+    Then 4,000 tokens shall move to the redemption escrow and the request shall be "TOKENS_LOCKED"
+    And The custodian shall receive a payout instruction within 60 seconds
+    When The custodian confirms the off-chain payout of 4,000 USD
+    Then The token contract shall burn the 4,000 escrowed tokens in a single transaction
     And Total supply shall decrease by 4,000
-    And The custodian shall receive a payout notification within 60 seconds
+    And The request status shall be "BURNED"
 
   @TC-RWA-09
   Scenario Outline: Paused contract rejects every state-changing operation
@@ -353,6 +432,36 @@ Feature: ERC-3643 Compliant Real-World Asset (RWA) Tokenization
     And The distribution allocation is calculated
     Then "Alice" shall be allocated 300,000 USD
     And "Bob" shall be allocated 200,000 USD
+
+  @TC-RWA-14
+  Scenario Outline: Emergency actions execute on quorum while governance changes wait for the timelock
+    Given 3 out of 5 governance signers approve a "<action>" proposal at time T
+    When The executor submits the "<action>" transaction at time "<submitted_at>"
+    Then The execution result shall be "<result>"
+    Examples:
+      | action                   | submitted_at | result                     |
+      | pause                    | T + 5 min    | EXECUTED                   |
+      | wallet freeze            | T + 5 min    | EXECUTED                   |
+      | contract upgrade         | T + 5 min    | REVERTED_TIMELOCK_ACTIVE   |
+      | contract upgrade         | T + 24 h     | EXECUTED                   |
+      | compliance module change | T + 23 h     | REVERTED_TIMELOCK_ACTIVE   |
+
+  @TC-RWA-15
+  Scenario: Unconfirmed redemption payout is reversed after 48 hours (Timeout Edge Case)
+    Given Redemption request "RR-3301" for 4,000 tokens of "Alice" entered "TOKENS_LOCKED" at time T
+    And The custodian has not confirmed the off-chain payout
+    When The time reaches T + 48 hours
+    Then The 4,000 escrowed tokens shall be returned to the wallet of "Alice"
+    And The request status shall be "REVERSED"
+    And Total supply shall remain unchanged
+    And The transfer agent shall be alerted
+
+  @TC-RWA-16
+  Scenario: Re-running a distribution job never double-pays a holder (Idempotency Edge Case)
+    Given Distribution "DIST-2026-Q3" has already paid 300,000 USD to "Alice" and 200,000 USD to "Bob"
+    When The distribution job for "DIST-2026-Q3" is re-run after a worker crash
+    Then No new payout shall be created for "Alice" or "Bob"
+    And The total paid for "DIST-2026-Q3" shall remain 500,000 USD
 ```
 
 ---
@@ -377,18 +486,18 @@ Feature: ERC-3643 Compliant Real-World Asset (RWA) Tokenization
 | Field Name | Data Type | Nullability | Default Value | Business Validation Rules & Constraints | Sensitive (PII/Secret) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `contract_address` | `CHAR(42)` | NOT NULL | - | Must match EVM address regex `^0x[a-fA-F0-9]{40}$` | No |
-| `wallet_address` | `CHAR(42)` | NOT NULL | - | Valid EVM hexadecimal address format | No |
-| `onchain_id_address`| `CHAR(42)` | NOT NULL | - | Deployed identity smart contract address | No |
-| `token_amount` | `NUMERIC(38,18)`| NOT NULL | `0` | Must be non-negative integer supporting 18 decimals | No |
-| `kyc_expiration` | `TIMESTAMPTZ` | NOT NULL | - | Future timestamp. Transfers blocked if past date | No |
-| `country_code` | `CHAR(3)` | NOT NULL | - | ISO 3166-1 alpha-3 uppercase country code | No |
+| `wallet_address` | `CHAR(42)` | NOT NULL | - | Valid EVM hexadecimal address format | Yes (personal data once linked to an identity; mapping stored off-chain only) |
+| `onchain_id_address`| `CHAR(42)` | NOT NULL | - | Deployed identity smart contract address | Yes (pseudonymous identifier) |
+| `token_amount` | `NUMERIC(78,0)`| NOT NULL | `0` | Raw uint256 amount in base units (no fractional part); display value = `token_amount / 10^decimals`. Must be $\ge 0$ | No |
+| `kyc_expiration` | `TIMESTAMPTZ` | NOT NULL | - | Future timestamp. Transfers blocked if past date | Yes (KYC attribute, off-chain) |
+| `country_code` | `INT2` | NOT NULL | - | ISO 3166-1 **numeric** code as stored by the ERC-3643 Identity Registry (`uint16`), e.g. `840` = United States | Yes (personal data when linked to an identity) |
 | `claim_topic_id` | `INT8` | NOT NULL | - | Standard identity topic integer (e.g., 10101 = Accredited) | No |
 | `oracle_reserve_usd`| `DECIMAL(18,2)`| NOT NULL | - | Attested fiat collateral balance reported by oracle | No |
 | `tx_hash` | `CHAR(66)` | NOT NULL | - | Standard 32-byte EVM transaction hash `^0x[a-fA-F0-9]{64}$` | No |
 | `log_index` | `INT4` | NOT NULL | - | Event position within its block. `(chain_id, tx_hash, log_index)` is the unique event key (one transaction can emit several transfers) | No |
 | `block_hash` | `CHAR(66)` | NOT NULL | - | Hash of the block containing the event; compared against the canonical chain to detect reorganizations | No |
 | `finality_status` | `VARCHAR(20)` | NOT NULL | `PENDING_FINALITY` | `PENDING_FINALITY`, `FINALIZED`, `ORPHANED`. Only `FINALIZED` events may mutate the cap table or the audit store | No |
-| `compliance_status` | `VARCHAR(32)` | NOT NULL | `VALID` | `VALID`, `EXPIRED`, `REVOKED`, `FROZEN` | No |
+| `holder_status` | `VARCHAR(32)` | NOT NULL | `PENDING_KYC` | `PENDING_KYC`, `VERIFIED`, `FROZEN`, `CLAIM_EXPIRED`, `RECOVERED`, `REJECTED_KYC` (see §3.4). Only `VERIFIED` may send or receive tokens | No |
 
 ---
 
@@ -402,15 +511,18 @@ Feature: ERC-3643 Compliant Real-World Asset (RWA) Tokenization
 | **BG-RWA-02** (KYC Compliance) | `US-RWA-102` | `REQ-RWA-02` | `ComplianceModule.canTransfer()` | `TC-RWA-01` (Compliant Transfer) |
 | **BG-RWA-02** (KYC Compliance) | `US-RWA-102` | `REQ-RWA-03` | `ComplianceModule.canTransfer()` | `TC-RWA-02` (Non-compliant Transfer Revert) |
 | **BG-RWA-02** (KYC Compliance) | `US-RWA-107` | `REQ-RWA-10` | `IdentityRegistry` sync job | `TC-RWA-10` (Claim Revocation Propagation) |
-| **BG-RWA-03** (Physical Redemption) | `US-RWA-103` | `REQ-RWA-04` | `TokenContract.burn()` | `TC-RWA-08` (Atomic Burn & Custody Notification) |
+| **BG-RWA-03** (Physical Redemption) | `US-RWA-103` | `REQ-RWA-04`, `REQ-RWA-18` | `POST /api/v1/redemptions` | `TC-RWA-08` (Lock, Payout, then Burn) |
+| **BG-RWA-03** (Physical Redemption) | `US-RWA-111` | `REQ-RWA-19` | Redemption timeout job | `TC-RWA-15` (Payout Timeout Reversal) |
 | **BG-RWA-04** (Regulatory Freeze & Control) | `US-RWA-104` | `REQ-RWA-06` | `TokenContract.setAddressFrozen()` | `TC-RWA-05` (Multi-Sig Emergency Freeze) |
+| **BG-RWA-04** (Regulatory Freeze & Control) | `US-RWA-112` | `REQ-RWA-06` | Governance multi-sig + timelock | `TC-RWA-14` (Emergency vs Timelocked Actions) |
 | **BG-RWA-04** (Regulatory Freeze & Control) | `US-RWA-104` | `REQ-RWA-05` | `TokenContract.pause()` | `TC-RWA-09` (Paused Contract Rejects Operations) |
 | **BG-RWA-05** (Re-org Immunity & Audit) | `US-RWA-105` | `REQ-RWA-07`, `REQ-RWA-08`, `REQ-RWA-17` | `POST /api/v1/watcher/reconcile` | `TC-RWA-04` (Pre-finality Reorg Handling) |
 | **BG-RWA-06** (Operational Resilience) | `US-RWA-108` | `REQ-RWA-14`, `REQ-RWA-16` | Operator transaction service | `TC-RWA-11` (Fee Bump & Nonce Serialization) |
 | **BG-RWA-06** (Operational Resilience) | `US-RWA-109` | `REQ-RWA-15` | `POST /api/v1/transfers/verify` | `TC-RWA-13` (k6 load test — non-BDD) |
 | **BG-RWA-07** (Corporate Actions) | `US-RWA-110` | `REQ-RWA-12` | `POST /api/v1/distributions` | `TC-RWA-12` (Record-Block Snapshot Allocation) |
+| **BG-RWA-07** (Corporate Actions) | `US-RWA-110` | `REQ-RWA-20` | `POST /api/v1/distributions/{id}/run` | `TC-RWA-16` (Idempotent Distribution Re-run) |
 
-> **Coverage:** all 17 requirements (`REQ-RWA-01`…`REQ-RWA-17`) trace to at least one test case; `TC-RWA-01`…`TC-RWA-12` are tagged scenarios in §5, `TC-RWA-13` is a load test.
+> **Coverage:** all 20 requirements (`REQ-RWA-01`…`REQ-RWA-20`) trace to at least one test case; every TC except `TC-RWA-13` (load test) is a tagged scenario in §5.
 
 ---
 
@@ -428,4 +540,5 @@ Feature: ERC-3643 Compliant Real-World Asset (RWA) Tokenization
 * **ERC-3643 (T-REX):** Open-source suite of smart contracts enabling compliant issuance and management of permissioned tokens utilizing OnchainID decentralized identity verification.
 * **Delivery-versus-Payment (DvP):** A securities settlement mechanism where transfer of tokens occurs simultaneously with the transfer of payment, eliminating counterparty credit risk.
 * **Proof of Reserve (PoR):** Cryptographic verification technique using decentralized oracles to continuously validate that physical or off-chain assets match on-chain token supply.
-* **Cross-Reference:** See `docs/05-domain-knowledge/payments-iso20022/ISO-20022-PAYMENTS-GUIDE.md` for fiat interbank settlements and `docs/04-data-dictionary/DATA-DICTIONARY-TEMPLATE.md` for data catalog standards.
+* **Finality:** The point after which a block can no longer be reverted without a consensus failure; on Ethereum PoS exposed through the `finalized` block tag.
+* **Cross-Reference:** See the [ISO 20022 Payments Guide](../payments-iso20022/ISO-20022-PAYMENTS-GUIDE.md) for fiat interbank settlements and the [Data Dictionary Template](../../04-data-dictionary/DATA-DICTIONARY-TEMPLATE.md) for data catalog standards.

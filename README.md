@@ -41,7 +41,7 @@ npx @phamanhduc/ba-hub init
 Provides 5 standalone MCP tools for AI Agents and Claude Desktop:
 
 1. `get_ba_template`: Fetch production-ready PRD, SRS, BRD, RTM, and domain guides.
-2. `validate_ears_requirement`: Validate EARS syntax (*Event, State, Unwanted, Ubiquitous*).
+2. `validate_ears_requirement`: Validate EARS syntax (*Event, State, Unwanted, Optional, Ubiquitous*).
 3. `generate_gherkin_scenarios`: Generate Happy Path, Negative Path, and Concurrency test scenarios.
 4. `audit_prd_quality`: Lints PRDs for vague buzzwords, missing SLOs, and edge cases.
 5. `export_to_jira_format`: Convert User Stories into Jira markup & Linear markdown.
